@@ -242,9 +242,9 @@ post_wordcount:
   #description: ex. subscribe to my blog by scanning my public wechat account
 
 # Reward
-#reward_comment: Donate comment here
-#wechatpay: /images/wechatpay.jpg
-#alipay: /images/alipay.jpg
+reward_comment: 坚持原创技术分享，您的支持将鼓励我继续创作！
+wechatpay: /images/pay/wechatpay.jpeg
+alipay: /images/pay/alipay.jpeg
 #bitcoin: /images/bitcoin.png
 
 # Declare license on posts
@@ -704,10 +704,13 @@ canvas_nest: false
 three_waves: false
 
 # canvas_lines
-canvas_lines: false
+canvas_lines: true
 
 # canvas_sphere
 canvas_sphere: false
+
+
+use_motion: false  # 关闭动画效果
 
 # Only fit scheme Pisces
 # Canvas-ribbon
