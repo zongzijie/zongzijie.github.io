@@ -6,17 +6,17 @@ categories: [轮子,代码]
 ---
 ## 先看效果
 首页
-![](../images/static-check/首页.png)
+![](/images/static-check/首页.png)
 Git检查
-![](../images/static-check/git.png)
+![](/images/static-check/git.png)
 TFS检查
-![](../images/static-check/tfs.png)
+![](/images/static-check/tfs.png)
 统计
-![](../images/static-check/统计.png)
+![](/images/static-check/统计.png)
 规则列表
-![](../images/static-check/规则列表.png)
+![](/images/static-check/规则列表.png)
 eslint报告
-![](../images/static-check/Eslint报告.png)
+![](/images/static-check/Eslint报告.png)
 ## 废话不多说直接上代码
 ### 下载代码，安装依赖
 环境：macOs
