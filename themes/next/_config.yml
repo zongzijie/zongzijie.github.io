@@ -95,7 +95,7 @@ menu:
   home: / || home
   #about: /about/ || user
   tags: /tags/ || tags
-  #categories: /categories/ || th
+  categories: /categories/ || th
   archives: /archives/ || archive
   #schedule: /schedule/ || calendar
   #sitemap: /sitemap.xml || sitemap
@@ -356,7 +356,10 @@ han: false
 #baidu_analytics:
 
 # Duoshuo ShortName
-#duoshuo_shortname:
+# duoshuo_shortname:
+
+# livere_uid
+livere_uid: MTAyMC8zNzU2OS8xNDEwMQ==
 
 # Disqus
 disqus:
