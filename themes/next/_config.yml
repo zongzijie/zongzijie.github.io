@@ -704,7 +704,7 @@ canvas_nest: false
 three_waves: false
 
 # canvas_lines
-canvas_lines: true
+canvas_lines: false
 
 # canvas_sphere
 canvas_sphere: false
@@ -718,7 +718,7 @@ use_motion: false  # 关闭动画效果
 # alpha: The transparency of the ribbon.
 # zIndex: The display level of the ribbon.
 canvas_ribbon:
-  enable: false
+  enable: true
   size: 300
   alpha: 0.6
   zIndex: -1
