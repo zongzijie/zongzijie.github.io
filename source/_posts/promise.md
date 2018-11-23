@@ -1,5 +1,5 @@
 ---
-title: promise 本质上是一个有限状态机
+title: Promise 本质上是一个有限状态机
 date: 2018-09-05 18:42:41
 tags: [promise,本质]
 ---
