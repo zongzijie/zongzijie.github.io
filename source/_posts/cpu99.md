@@ -24,7 +24,7 @@ tags: windbg
 
 因为昨晚有程序更新，最先怀疑程序包问题，所以进行人工源码分析，没发现明显问题
 
-## dump分析
+## windbg dump分析
 
 > .load 加载SOS.dll,SOS.dll 扩展提供了大量用于检查托管堆的有用命令
 
