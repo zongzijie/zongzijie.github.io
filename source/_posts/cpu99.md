@@ -186,7 +186,7 @@ System.Collections.Generic.List`1[[System.Guid, mscorlib]]..ctor(System.Collecti
 
 ## 破案
 
-> 段时间内运行多次调度任务，如何做到的？
+> 短时间内运行多次调度任务，如何做到的？
 
 分析代码发现，这个接口的用途是调度任务，这个调度任务出厂时是每天凌晨1点执行一次，正常情况不会出现多次调用，分析有以下2种情况会出现多次调用
 
