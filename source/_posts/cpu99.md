@@ -1,39 +1,29 @@
 ---
-title: 记一次应用服务器cpu99%处理实战
+title: 记一次生产环境CPU100%排查实践
 date: 2019-08-26 21:23:48
 tags: windbg
 ---
+## 背景
+> 生产环境通常是运维工程师维护，如果出现异常也是优先运维工程师来排查，但是运维工程师不精通产品的业务逻辑，如果异常涉及到业务逻辑，就事倍功半了，遇到这种情况，运维工程师会找产品研发工程师协助，如果此时研发工程师不具备分析dump包的能力，解决问题的效率就会变的很低，所以掌握如何调试和排查生产环境异常，是研发工程师必须掌握的技能。windbg是在windows平台下，强大的用户态和内核态调试工具。相比较于Visual Studio，它是一个轻量级的调试工具，所谓轻量级指的是它的安装文件大小较小，但是其调试功能，却比VS更为强大。它的另外一个用途是可以用来分析dump数据。
+[微软windbg下载](https://download.microsoft.com/download/1/4/0/140EBDB7-F631-4191-9DC0-31C8ECB8A11F/wdk/wdksetup.exe)
 
-## 发生
+## 故障发生
 > **8月21日下午4点48分左右客户的4台Web服务器同时CPU99%预警**
 
 ![](/images/cpu99/Picture2.png)
 ![](/images/cpu99/warning2.png)
 
-## 抓包
+## 服务器抓包
 
-> 到服务器上抓dump包
+> 任务列表生成进程的转储文件
 
-服务器由于CPU99%异常卡顿，几乎连不上，能把包抓下来也实属运气好，整个包压缩后有750M，传输和解压都用了不少时间，此时已经下午5点22分
+![](/images/cpu99/dump.png)
 
 > dump包解压和传输同时也没闲着
 
 因为昨晚有程序更新，最先怀疑程序包问题，所以进行人工源码分析，没发现明显问题
 
-> 抓包命令
-
-```
-cd 到windbg所在目录
-adplus -hang -pn w3wp.exe -o c:\dumps
-//该命令立刻把w3wp.exe的full dump抓取到c:\dumps文件夹内。
-```
-
 ## windbg dump分析
-
-> windbg 简单入门
-
-windbg是在windows平台下，强大的用户态和内核态调试工具。相比较于Visual Studio，它是一个轻量级的调试工具，所谓轻量级指的是它的安装文件大小较小，但是其调试功能，却比VS更为强大。它的另外一个用途是可以用来分析dump数据。
-[windbg64位下载](https://download.microsoft.com/download/1/4/0/140EBDB7-F631-4191-9DC0-31C8ECB8A11F/wdk/wdksetup.exe)
 
 > 本文涉及到的命令
 
