@@ -10,10 +10,6 @@ tags: windbg
 ![](/images/cpu99/Picture2.png)
 ![](/images/cpu99/warning2.png)
 
-> **CPU利用率缓慢下降**
-
-![](/images/cpu99/webcpu2.png)
-
 ## 抓包
 
 > 到服务器上抓dump包
@@ -24,9 +20,34 @@ tags: windbg
 
 因为昨晚有程序更新，最先怀疑程序包问题，所以进行人工源码分析，没发现明显问题
 
+> 抓包命令
+
+```
+cd 到windbg所在目录
+adplus -hang -pn w3wp.exe -o c:\dumps
+//该命令立刻把w3wp.exe的full dump抓取到c:\dumps文件夹内。
+```
+
 ## windbg dump分析
 
-> .load 加载SOS.dll,SOS.dll 扩展提供了大量用于检查托管堆的有用命令
+> windbg 简单入门
+
+windbg是在windows平台下，强大的用户态和内核态调试工具。相比较于Visual Studio，它是一个轻量级的调试工具，所谓轻量级指的是它的安装文件大小较小，但是其调试功能，却比VS更为强大。它的另外一个用途是可以用来分析dump数据。
+[windbg64位下载](https://download.microsoft.com/download/1/4/0/140EBDB7-F631-4191-9DC0-31C8ECB8A11F/wdk/wdksetup.exe)
+
+> 本文涉及到的命令
+
+```
+.load //加载模块
+!tp //查看线程池状态
+!runaway //显示当前进程的所有线程用户态时间信息
+~ [n] s //切换到n进程，n是!runaway 查看到的线程号
+!clrstack //打印clr调用堆栈信息
+```
+
+> 打开dump包，这里直接打开windbg后拖转到程序界面即可
+
+> .load 命令 加载SOS.dll,SOS.dll 扩展提供了大量用于检查托管堆的有用命令
 
 ```
 Loading Dump File [D:\w3wp.DMP]
@@ -54,7 +75,21 @@ ntdll!NtWaitForSingleObject+0xa:
 
 ```
 
-> !runaway 显示当前进程的所有线程用户态时间信息
+> !tp 命令 分析线程池,可以看到CPU利用率已经100%了
+
+```
+0:000> !tp
+CPU utilization: 100%
+Worker Thread: Total: 28 Running: 25 Idle: 3 MaxLimit: 32767 MinLimit: 8
+Work Request in Queue: 0
+--------------------------------------
+Number of Timers: 0
+--------------------------------------
+Completion Port Thread:Total: 3 Free: 1 MaxFree: 16 CurrentLimit: 1 MaxLimit: 1000 MinLimit: 8
+
+```
+
+> !runaway 命令 显示当前进程的所有线程用户态时间信息，可以看到线程时间最长的是42线程
 
 ```
 0:000> !runaway
@@ -88,7 +123,7 @@ ntdll!NtWaitForSingleObject+0xa:
 
 ```
 
-> 查看42主线程调用堆栈
+> 42线程时间最长，所以先查看42主线程调用堆栈
 
 ```
 0:000> ~42 s
@@ -131,27 +166,31 @@ System.Collections.Generic.List`1[[System.Guid, mscorlib]]..ctor(System.Collecti
 00000049eeb8f0a8 00007ffaa70a6bb3 [DebuggerU2MCatchHandlerFrame: 00000049eeb8f0a8]
 ```
 
-> 根据上面的堆栈信息，此时已经定位到具体出问题的接口是 UpdateRoomDjOverDusDays
+> 根据上面的堆栈信息，此时已经定位到具体出问题的接口是 `UpdateRoomDjOverDusDays`
 
 通常100%CPU会怀疑死循环和无限递归，搜索代码分析，发现有很多个循环，但都很难引起死循环或者无限递归。
 
 此时陷入尴尬，继续思考...
 
-看到上面的线程CPU时间超过1分钟的有多个，逐个打开看堆栈，发现都是同一个接口调用。
+看到上面的线程CPU时间超过1分钟的有多个，逐个打开看堆栈
+~47 s
+~50 s
+~49 s
+发现堆栈信息都是相同的，是同一个接口调用
 
 会不会是多线程一起跑，导致吃掉了所有CPU...
 
-为了印证这个问题，继续分析源码，看看是否有开启多线程的地方...果然找到了，如下图
+为了印证这个猜想，继续分析源码，看看是否有开启多线程的地方...果然找到了，如下图
 
 ![](/images/cpu99/background.jpg)
 
 ## 破案
 
-> 瞬间调用多次，如何做到的？
+> 段时间内运行多次调度任务，如何做到的？
 
 分析代码发现，这个接口的用途是调度任务，这个调度任务出厂时是每天凌晨1点执行一次，正常情况不会出现多次调用，分析有以下2种情况会出现多次调用
 
-1. 手动触发，调试接口，这个无日志，只能人工排除
+1. 手动触发，调试接口，这个无日志，无证据，只能人工排除
 2. 人工将调度任务的执行间隔调整到其他间隔，比如一分钟一次，就可以造成多线程堆积
 
 因为第一种情况无法确定，找不到证据，所以用排除法，先去找第二种可能的证据
@@ -169,7 +208,7 @@ System.Collections.Generic.List`1[[System.Guid, mscorlib]]..ctor(System.Collecti
 
 > 结论
 
-到这里已经印证了猜想，这个异步接口，在半小时内被调度了30多次，导致线程堆积，出现了瞬时CPU99%，20分钟后又逐渐下降的现象。
+到这里所有的问题已经得到证实，这个异步接口，在半小时内被调度了30多次，导致线程堆积，出现了瞬时CPU99%，20分钟后又逐渐下降。
 
 本着以人为本的原则，拿着证据找到了当事人确认，发现确有此事，而且16：41分的时间也和最初的CPU预警时间吻合。
 
