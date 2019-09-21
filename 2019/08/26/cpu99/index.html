@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta name="google-site-verification" content="wa1d_VBROrC8CUBWfePHIQjtmuJKI6xEugzR_oYT-bY" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/favicon.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="windbg," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="zongzijie'Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="背景 生产环境通常是运维工程师维护，如果出现异常也是优先运维工程师来排查，但是运维工程师不精通产品的业务逻辑，如果异常涉及到业务逻辑，就事倍功半了，遇到这种情况，运维工程师会找产品研发工程师协助，如果此时研发工程师不具备分析dump包的能力，解决问题的效率就会变的很低，所以掌握如何调试和排查生产环境异常，是研发工程师必须掌握的技能。windbg是在windows平台下，强大的用户态和内核态调试工具">
+<meta name="keywords" content="windbg">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次生产环境CPU100%排查实践">
+<meta property="og:url" content="http://zongzijie.github.io/2019/08/26/cpu99/index.html">
+<meta property="og:site_name" content="zongzijie&#39;Blog">
+<meta property="og:description" content="背景 生产环境通常是运维工程师维护，如果出现异常也是优先运维工程师来排查，但是运维工程师不精通产品的业务逻辑，如果异常涉及到业务逻辑，就事倍功半了，遇到这种情况，运维工程师会找产品研发工程师协助，如果此时研发工程师不具备分析dump包的能力，解决问题的效率就会变的很低，所以掌握如何调试和排查生产环境异常，是研发工程师必须掌握的技能。windbg是在windows平台下，强大的用户态和内核态调试工具">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://zongzijie.github.io/images/cpu99/Picture2.png">
+<meta property="og:image" content="http://zongzijie.github.io/images/cpu99/warning2.png">
+<meta property="og:image" content="http://zongzijie.github.io/images/cpu99/dump.png">
+<meta property="og:image" content="http://zongzijie.github.io/images/cpu99/background.jpg">
+<meta property="og:image" content="http://zongzijie.github.io/images/cpu99/logs2.jpg">
+<meta property="og:updated_time" content="2019-09-21T13:20:32.924Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次生产环境CPU100%排查实践">
+<meta name="twitter:description" content="背景 生产环境通常是运维工程师维护，如果出现异常也是优先运维工程师来排查，但是运维工程师不精通产品的业务逻辑，如果异常涉及到业务逻辑，就事倍功半了，遇到这种情况，运维工程师会找产品研发工程师协助，如果此时研发工程师不具备分析dump包的能力，解决问题的效率就会变的很低，所以掌握如何调试和排查生产环境异常，是研发工程师必须掌握的技能。windbg是在windows平台下，强大的用户态和内核态调试工具">
+<meta name="twitter:image" content="http://zongzijie.github.io/images/cpu99/Picture2.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://zongzijie.github.io/2019/08/26/cpu99/"/>
+
+
+
+
+
+  <title>记一次生产环境CPU100%排查实践 | zongzijie'Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">zongzijie'Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://zongzijie.github.io/2019/08/26/cpu99/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="wojiejie">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/me.avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zongzijie'Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">记一次生产环境CPU100%排查实践</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-26T21:23:48+00:00">
+                2019-08-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv">本文总阅读量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><blockquote>
+<p>生产环境通常是运维工程师维护，如果出现异常也是优先运维工程师来排查，但是运维工程师不精通产品的业务逻辑，如果异常涉及到业务逻辑，就事倍功半了，遇到这种情况，运维工程师会找产品研发工程师协助，如果此时研发工程师不具备分析dump包的能力，解决问题的效率就会变的很低，所以掌握如何调试和排查生产环境异常，是研发工程师必须掌握的技能。windbg是在windows平台下，强大的用户态和内核态调试工具。相比较于Visual Studio，它是一个轻量级的调试工具，所谓轻量级指的是它的安装文件大小较小，但是其调试功能，却比VS更为强大。它的另外一个用途是可以用来分析dump数据。<br><a href="https://download.microsoft.com/download/1/4/0/140EBDB7-F631-4191-9DC0-31C8ECB8A11F/wdk/wdksetup.exe" target="_blank" rel="noopener">微软windbg下载</a></p>
+</blockquote>
+<h2 id="故障发生"><a href="#故障发生" class="headerlink" title="故障发生"></a>故障发生</h2><blockquote>
+<p><strong>8月21日下午4点48分左右客户的4台Web服务器同时CPU99%预警</strong></p>
+</blockquote>
+<p><img src="/images/cpu99/Picture2.png" alt=""><br><img src="/images/cpu99/warning2.png" alt=""></p>
+<h2 id="服务器抓包"><a href="#服务器抓包" class="headerlink" title="服务器抓包"></a>服务器抓包</h2><blockquote>
+<p>任务列表生成进程的转储文件</p>
+</blockquote>
+<p><img src="/images/cpu99/dump.png" alt=""></p>
+<blockquote>
+<p>dump包解压和传输同时也没闲着</p>
+</blockquote>
+<p>因为昨晚有程序更新，最先怀疑程序包问题，所以进行人工源码分析，没发现明显问题</p>
+<h2 id="windbg-dump分析"><a href="#windbg-dump分析" class="headerlink" title="windbg dump分析"></a>windbg dump分析</h2><blockquote>
+<p>本文涉及到的命令</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.load //加载模块</span><br><span class="line">!tp //查看线程池状态</span><br><span class="line">!runaway //显示当前进程的所有线程用户态时间信息</span><br><span class="line">~ [n] s //切换到n进程，n是!runaway 查看到的线程号</span><br><span class="line">!clrstack //打印clr调用堆栈信息</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>打开dump包，这里直接打开windbg后拖转到程序界面即可</p>
+</blockquote>
+<blockquote>
+<p>.load 命令 加载SOS.dll,SOS.dll 扩展提供了大量用于检查托管堆的有用命令</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Loading Dump File [D:\w3wp.DMP]</span><br><span class="line">User Mini Dump File with Full Memory: Only application data is available</span><br><span class="line"></span><br><span class="line">Symbol search path is: srv*</span><br><span class="line">Executable search path is: </span><br><span class="line">Windows 8.1 Version 9600 MP (8 procs) Free x64</span><br><span class="line">Product: Server, suite: TerminalServer SingleUserTS</span><br><span class="line">6.3.9600.18217 (winblue_ltsb.160124-0053)</span><br><span class="line">Machine Name:</span><br><span class="line">Debug session time: Wed Aug 21 17:10.202 2019 (UTC + 8:00)</span><br><span class="line">System Uptime: 70 days 4:57:03.224</span><br><span class="line">Process Uptime: 0 days 1:16:33.000</span><br><span class="line">................................................................</span><br><span class="line">................................................................</span><br><span class="line">................................................................</span><br><span class="line">......................................</span><br><span class="line">Loading unloaded module list</span><br><span class="line">................................................................</span><br><span class="line">For analysis of this file, run !analyze -v</span><br><span class="line">ntdll!NtWaitForSingleObject+0xa:</span><br><span class="line">00007ffa`b365079a c3              ret</span><br><span class="line">0:000&gt; .load C:\Windows\Microsoft.NET\Framework64\v4.0.30319\sos.dll</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>!tp 命令 分析线程池,可以看到CPU利用率已经100%了</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">0:000&gt; !tp</span><br><span class="line">CPU utilization: 100%</span><br><span class="line">Worker Thread: Total: 28 Running: 25 Idle: 3 MaxLimit: 32767 MinLimit: 8</span><br><span class="line">Work Request in Queue: 0</span><br><span class="line">--------------------------------------</span><br><span class="line">Number of Timers: 0</span><br><span class="line">--------------------------------------</span><br><span class="line">Completion Port Thread:Total: 3 Free: 1 MaxFree: 16 CurrentLimit: 1 MaxLimit: 1000 MinLimit: 8</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>!runaway 命令 显示当前进程的所有线程用户态时间信息，可以看到线程时间最长的是42线程</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">0:000&gt; !runaway</span><br><span class="line"> User Mode Time</span><br><span class="line">  Thread       Time</span><br><span class="line">   42:3575c     0 days 0:26:12.234</span><br><span class="line">   47:368c0     0 days 0:22:24.250</span><br><span class="line">   50:36488     0 days 0:14:08.937</span><br><span class="line">   49:2b69c     0 days 0:13:52.218</span><br><span class="line">   51:3440c     0 days 0:12:54.937</span><br><span class="line">   48:363e8     0 days 0:08:27.453</span><br><span class="line">   53:302a8     0 days 0:07:16.953</span><br><span class="line">   52:353f8     0 days 0:07:09.234</span><br><span class="line">   56:36d88     0 days 0:06:17.484</span><br><span class="line">   64:35cf0     0 days 0:05:55.750</span><br><span class="line">   57:36ae0     0 days 0:05:26.046</span><br><span class="line">   62:3694c     0 days 0:05:24.796</span><br><span class="line">   58:35d1c     0 days 0:04:58.703</span><br><span class="line">   65:36114     0 days 0:04:48.093</span><br><span class="line">   61:36d58     0 days 0:04:33.750</span><br><span class="line">   60:36d9c     0 days 0:04:32.437</span><br><span class="line">   55:36ff0     0 days 0:04:27.453</span><br><span class="line">   63:369dc     0 days 0:03:54.375</span><br><span class="line">   54:33b70     0 days 0:03:38.578</span><br><span class="line">   59:35da0     0 days 0:03:28.109</span><br><span class="line">   70:359cc     0 days 0:02:43.203</span><br><span class="line">   69:2f074     0 days 0:02:09.687</span><br><span class="line">   71:3540c     0 days 0:01:46.140</span><br><span class="line">   72:341ec     0 days 0:01:10.781</span><br><span class="line">   73:3674c     0 days 0:01:01.921</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>42线程时间最长，所以先查看42主线程调用堆栈</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">0:000&gt; ~42 s</span><br><span class="line">ntdll!NtYieldExecution+0xa:</span><br><span class="line">00007ffa`b3650bba c3              ret</span><br><span class="line">0:042&gt; !clrstack</span><br><span class="line">OS Thread Id: 0x3575c (42)</span><br><span class="line">        Child SP               IP Call Site</span><br><span class="line">00000049eeb8d5e8 00007ffab3650bba [RedirectedThreadFrame: 00000049eeb8d5e8] </span><br><span class="line">00000049eeb8d680 00007ffa52849e05 Mysoft.Slxt.TradeMng.Customize.DomainServices.DjOverdueRemindDomainService+c__DisplayClass7_1.b__7(Mysoft.Slxt.PriceMng.Model.TjDetail)</span><br><span class="line">00000049eeb8d700 00007ffa865c6111 *** WARNING: Unable to verify checksum for System.Core.ni.dll</span><br><span class="line">System.Linq.Enumerable+WhereSelectListIterator`2[[System.__Canon, mscorlib],[System.Guid, mscorlib]].MoveNext()</span><br><span class="line">00000049eeb8d750 00007ffa8c09a6a0 *** WARNING: Unable to verify checksum for mscorlib.ni.dll</span><br><span class="line">System.Collections.Generic.List`1[[System.Guid, mscorlib]]..ctor(System.Collections.Generic.IEnumerable`1)</span><br><span class="line">00000049eeb8d7d0 00007ffa865b8b6c System.Linq.Enumerable.ToList[[System.Guid, mscorlib]](System.Collections.Generic.IEnumerable`1)</span><br><span class="line">00000049eeb8d810 00007ffa5215bdd5 Mysoft.Slxt.TradeMng.Customize.DomainServices.DjOverdueRemindDomainService.UpdateRoomDjOverDusDays()</span><br><span class="line">00000049eeb8e000 00007ffa520174de Castle.DynamicProxy.AbstractInvocation.Proceed()</span><br><span class="line">00000049eeb8e050 00007ffa5201ee34 Mysoft.Map6.Core.Pipeline.Proxy.PipelineInvocation.Proceed()</span><br><span class="line">00000049eeb8e080 00007ffa5201ede4 Mysoft.Map6.Core.Pipeline.Proxy.Invoker.ServiceInvoker.TargetInvoke(Mysoft.Map6.Core.Pipeline.IPipelineInvocation)</span><br><span class="line">00000049eeb8e0b0 00007ffa5201f52d Mysoft.Map6.Core.Pipeline.Proxy.Invoker.ServiceInvoker.Invoke(Mysoft.Map6.Core.Pipeline.IPipelineInvocation)</span><br><span class="line">00000049eeb8e120 00007ffa5201772a Mysoft.Map6.Core.Pipeline.Proxy.PipelineInterceptor.Intercept(Castle.DynamicProxy.IInvocation)</span><br><span class="line">00000049eeb8e180 00007ffa5201762f Castle.DynamicProxy.AbstractInvocation.Proceed()</span><br><span class="line">00000049eeb8e1d0 00007ffa52159fb8 Mysoft.Slxt.TradeMng.Customize.AppServices.DjOverdueRemindAppService.UpdateRoomDjOverDusDays()</span><br><span class="line">00000049eeb8e210 00007ffa520174de Castle.DynamicProxy.AbstractInvocation.Proceed()</span><br><span class="line">00000049eeb8e260 00007ffa5201ee34 Mysoft.Map6.Core.Pipeline.Proxy.PipelineInvocation.Proceed()</span><br><span class="line">00000049eeb8e290 00007ffa5201ede4 Mysoft.Map6.Core.Pipeline.Proxy.Invoker.ServiceInvoker.TargetInvoke(Mysoft.Map6.Core.Pipeline.IPipelineInvocation)</span><br><span class="line">00000049eeb8e2c0 00007ffa5201a9f2 Mysoft.Map6.Core.Pipeline.Proxy.Invoker.AppServiceInvoker.Invoke(Mysoft.Map6.Core.Pipeline.IPipelineInvocation)</span><br><span class="line">00000049eeb8e4a0 00007ffa5201772a Mysoft.Map6.Core.Pipeline.Proxy.PipelineInterceptor.Intercept(Castle.DynamicProxy.IInvocation)</span><br><span class="line">00000049eeb8e500 00007ffa5201762f Castle.DynamicProxy.AbstractInvocation.Proceed()</span><br><span class="line">00000049eeb8e550 00007ffa52159bfc Mysoft.Slxt.TradeMng.Customize.PublicServices.DjOverdueRemindPublicService.UpdateRoomDjOverDueDaysAction(System.Object)</span><br><span class="line">00000049eeb8e590 00007ffa52159a87 Mysoft.Map6.Core.Service.AppService+c__DisplayClass22_0.b__0()</span><br><span class="line">00000049eeb8e620 00007ffa8b76c7e6 System.Threading.Tasks.Task.Execute()</span><br><span class="line">00000049eeb8e660 00007ffa8b7231d3 System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, System.Object, Boolean)</span><br><span class="line">00000049eeb8e730 00007ffa8b723064 System.Threading.ExecutionContext.Run(System.Threading.ExecutionContext, System.Threading.ContextCallback, System.Object, Boolean)</span><br><span class="line">00000049eeb8e760 00007ffa8b76ca85 System.Threading.Tasks.Task.ExecuteWithThreadLocal(System.Threading.Tasks.Task ByRef)</span><br><span class="line">00000049eeb8e810 00007ffa8b76c1b3 System.Threading.Tasks.Task.ExecuteEntry(Boolean)</span><br><span class="line">00000049eeb8e850 00007ffa8b762362 System.Threading.ThreadPoolWorkQueue.Dispatch()</span><br><span class="line">00000049eeb8ece8 00007ffaa70a6bb3 [DebuggerU2MCatchHandlerFrame: 00000049eeb8ece8] </span><br><span class="line">00000049eeb8ee78 00007ffaa70a6bb3 [ContextTransitionFrame: 00000049eeb8ee78] </span><br><span class="line">00000049eeb8f0a8 00007ffaa70a6bb3 [DebuggerU2MCatchHandlerFrame: 00000049eeb8f0a8]</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>根据上面的堆栈信息，此时已经定位到具体出问题的接口是 <code>UpdateRoomDjOverDusDays</code></p>
+</blockquote>
+<p>通常100%CPU会怀疑死循环和无限递归，搜索代码分析，发现有很多个循环，但都很难引起死循环或者无限递归。</p>
+<p>此时陷入尴尬，继续思考…</p>
+<p>看到上面的线程CPU时间超过1分钟的有多个，逐个打开看堆栈<br>~47 s<br>~50 s<br>~49 s<br>发现堆栈信息都是相同的，是同一个接口调用</p>
+<p>会不会是多线程一起跑，导致吃掉了所有CPU…</p>
+<p>为了印证这个猜想，继续分析源码，看看是否有开启多线程的地方…果然找到了，如下图</p>
+<p><img src="/images/cpu99/background.jpg" alt=""></p>
+<h2 id="破案"><a href="#破案" class="headerlink" title="破案"></a>破案</h2><blockquote>
+<p>短时间内运行多次调度任务，如何做到的？</p>
+</blockquote>
+<p>分析代码发现，这个接口的用途是调度任务，这个调度任务出厂时是每天凌晨1点执行一次，正常情况不会出现多次调用，分析有以下2种情况会出现多次调用</p>
+<ol>
+<li>手动触发，调试接口，这个无日志，无证据，只能人工排除</li>
+<li>人工将调度任务的执行间隔调整到其他间隔，比如一分钟一次，就可以造成多线程堆积</li>
+</ol>
+<p>因为第一种情况无法确定，找不到证据，所以用排除法，先去找第二种可能的证据</p>
+<p>首先去找系统的操作日志，发现的确在这个时间段有人操作个调度任务模块的功能，由于日志粒度不够细，无法断定是操作了什么功能</p>
+<p>接下来就去找对应调度任务的运行日志，发现了问题…如图<br><img src="/images/cpu99/logs2.jpg" alt=""><br>上图中，第一个时间是凌晨1点的正常调度<br>但是在 16:41 分又调度了一次<br>接着 16:42 分又开始了一次<br>…后面还有30多次调度，每一个都是间隔一分钟</p>
+<blockquote>
+<p>结论</p>
+</blockquote>
+<p>到这里所有的问题已经得到证实</p>
+<p>这个调度任务在16:41分时被人为将调度间隔改成了1分钟调度一次，由于是异步执行，每次调度都会立即返回，修改后30分钟左右才改回来。 在半小时内被调度了30多次，导致线程堆积，出现了瞬时CPU99%，20分钟后又逐渐下降（因为任务逐渐都执行完了） 后与相关操作人员证实，确实有进行过调度间隔改动，目的是为了手动触发调度任务。但由于不知道内部机制，配置改动后没有及时还原。 而且上面16：41分的最初调度时间也和最初的CPU预警时间吻合。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/pay/wechatpay.jpeg" alt="wojiejie 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/pay/alipay.jpeg" alt="wojiejie 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/windbg/" rel="tag"># windbg</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/14/browser-screen/" rel="next" title="优雅的浏览器滚动截屏">
+                <i class="fa fa-chevron-left"></i> 优雅的浏览器滚动截屏
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_inline_share_toolbox">
+  <script type = "text/javascript" src = "//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5b307b4bae06ffd8" async = "async" ></script>
+</div>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNzU2OS8xNDEwMQ=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/me.avatar.png"
+                alt="wojiejie" />
+            
+              <p class="site-author-name" itemprop="name">wojiejie</p>
+              <p class="site-description motion-element" itemprop="description">运行在C上的世界</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zongzijie" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/wojiejie" target="_blank" title="ZhiHu">
+                      
+                        <i class="fa fa-fw fa-globe"></i>ZhiHu</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#故障发生"><span class="nav-number">2.</span> <span class="nav-text">故障发生</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#服务器抓包"><span class="nav-number">3.</span> <span class="nav-text">服务器抓包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#windbg-dump分析"><span class="nav-number">4.</span> <span class="nav-text">windbg dump分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#破案"><span class="nav-number">5.</span> <span class="nav-text">破案</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">wojiejie</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a></div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      本站访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script id="ribbon" type="text/javascript" size="300" alpha="0.6"  zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

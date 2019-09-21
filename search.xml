@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title><![CDATA[记一次生产环境CPU100%排查实践]]></title>
+    <url>%2F2019%2F08%2F26%2Fcpu99%2F</url>
+    <content type="text"><![CDATA[背景 生产环境通常是运维工程师维护，如果出现异常也是优先运维工程师来排查，但是运维工程师不精通产品的业务逻辑，如果异常涉及到业务逻辑，就事倍功半了，遇到这种情况，运维工程师会找产品研发工程师协助，如果此时研发工程师不具备分析dump包的能力，解决问题的效率就会变的很低，所以掌握如何调试和排查生产环境异常，是研发工程师必须掌握的技能。windbg是在windows平台下，强大的用户态和内核态调试工具。相比较于Visual Studio，它是一个轻量级的调试工具，所谓轻量级指的是它的安装文件大小较小，但是其调试功能，却比VS更为强大。它的另外一个用途是可以用来分析dump数据。微软windbg下载 故障发生 8月21日下午4点48分左右客户的4台Web服务器同时CPU99%预警 服务器抓包 任务列表生成进程的转储文件 dump包解压和传输同时也没闲着 因为昨晚有程序更新，最先怀疑程序包问题，所以进行人工源码分析，没发现明显问题 windbg dump分析 本文涉及到的命令 12345.load //加载模块!tp //查看线程池状态!runaway //显示当前进程的所有线程用户态时间信息~ [n] s //切换到n进程，n是!runaway 查看到的线程号!clrstack //打印clr调用堆栈信息 打开dump包，这里直接打开windbg后拖转到程序界面即可 .load 命令 加载SOS.dll,SOS.dll 扩展提供了大量用于检查托管堆的有用命令 12345678910111213141516171819202122Loading Dump File [D:\w3wp.DMP]User Mini Dump File with Full Memory: Only application data is availableSymbol search path is: srv*Executable search path is: Windows 8.1 Version 9600 MP (8 procs) Free x64Product: Server, suite: TerminalServer SingleUserTS6.3.9600.18217 (winblue_ltsb.160124-0053)Machine Name:Debug session time: Wed Aug 21 17:10.202 2019 (UTC + 8:00)System Uptime: 70 days 4:57:03.224Process Uptime: 0 days 1:16:33.000......................................................................................................................................................................................................................................Loading unloaded module list................................................................For analysis of this file, run !analyze -vntdll!NtWaitForSingleObject+0xa:00007ffa`b365079a c3 ret0:000&gt; .load C:\Windows\Microsoft.NET\Framework64\v4.0.30319\sos.dll !tp 命令 分析线程池,可以看到CPU利用率已经100%了 123456780:000&gt; !tpCPU utilization: 100%Worker Thread: Total: 28 Running: 25 Idle: 3 MaxLimit: 32767 MinLimit: 8Work Request in Queue: 0--------------------------------------Number of Timers: 0--------------------------------------Completion Port Thread:Total: 3 Free: 1 MaxFree: 16 CurrentLimit: 1 MaxLimit: 1000 MinLimit: 8 !runaway 命令 显示当前进程的所有线程用户态时间信息，可以看到线程时间最长的是42线程 123456789101112131415161718192021222324252627280:000&gt; !runaway User Mode Time Thread Time 42:3575c 0 days 0:26:12.234 47:368c0 0 days 0:22:24.250 50:36488 0 days 0:14:08.937 49:2b69c 0 days 0:13:52.218 51:3440c 0 days 0:12:54.937 48:363e8 0 days 0:08:27.453 53:302a8 0 days 0:07:16.953 52:353f8 0 days 0:07:09.234 56:36d88 0 days 0:06:17.484 64:35cf0 0 days 0:05:55.750 57:36ae0 0 days 0:05:26.046 62:3694c 0 days 0:05:24.796 58:35d1c 0 days 0:04:58.703 65:36114 0 days 0:04:48.093 61:36d58 0 days 0:04:33.750 60:36d9c 0 days 0:04:32.437 55:36ff0 0 days 0:04:27.453 63:369dc 0 days 0:03:54.375 54:33b70 0 days 0:03:38.578 59:35da0 0 days 0:03:28.109 70:359cc 0 days 0:02:43.203 69:2f074 0 days 0:02:09.687 71:3540c 0 days 0:01:46.140 72:341ec 0 days 0:01:10.781 73:3674c 0 days 0:01:01.921 42线程时间最长，所以先查看42主线程调用堆栈 12345678910111213141516171819202122232425262728293031323334353637380:000&gt; ~42 sntdll!NtYieldExecution+0xa:00007ffa`b3650bba c3 ret0:042&gt; !clrstackOS Thread Id: 0x3575c (42) Child SP IP Call Site00000049eeb8d5e8 00007ffab3650bba [RedirectedThreadFrame: 00000049eeb8d5e8] 00000049eeb8d680 00007ffa52849e05 Mysoft.Slxt.TradeMng.Customize.DomainServices.DjOverdueRemindDomainService+c__DisplayClass7_1.b__7(Mysoft.Slxt.PriceMng.Model.TjDetail)00000049eeb8d700 00007ffa865c6111 *** WARNING: Unable to verify checksum for System.Core.ni.dllSystem.Linq.Enumerable+WhereSelectListIterator`2[[System.__Canon, mscorlib],[System.Guid, mscorlib]].MoveNext()00000049eeb8d750 00007ffa8c09a6a0 *** WARNING: Unable to verify checksum for mscorlib.ni.dllSystem.Collections.Generic.List`1[[System.Guid, mscorlib]]..ctor(System.Collections.Generic.IEnumerable`1)00000049eeb8d7d0 00007ffa865b8b6c System.Linq.Enumerable.ToList[[System.Guid, mscorlib]](System.Collections.Generic.IEnumerable`1)00000049eeb8d810 00007ffa5215bdd5 Mysoft.Slxt.TradeMng.Customize.DomainServices.DjOverdueRemindDomainService.UpdateRoomDjOverDusDays()00000049eeb8e000 00007ffa520174de Castle.DynamicProxy.AbstractInvocation.Proceed()00000049eeb8e050 00007ffa5201ee34 Mysoft.Map6.Core.Pipeline.Proxy.PipelineInvocation.Proceed()00000049eeb8e080 00007ffa5201ede4 Mysoft.Map6.Core.Pipeline.Proxy.Invoker.ServiceInvoker.TargetInvoke(Mysoft.Map6.Core.Pipeline.IPipelineInvocation)00000049eeb8e0b0 00007ffa5201f52d Mysoft.Map6.Core.Pipeline.Proxy.Invoker.ServiceInvoker.Invoke(Mysoft.Map6.Core.Pipeline.IPipelineInvocation)00000049eeb8e120 00007ffa5201772a Mysoft.Map6.Core.Pipeline.Proxy.PipelineInterceptor.Intercept(Castle.DynamicProxy.IInvocation)00000049eeb8e180 00007ffa5201762f Castle.DynamicProxy.AbstractInvocation.Proceed()00000049eeb8e1d0 00007ffa52159fb8 Mysoft.Slxt.TradeMng.Customize.AppServices.DjOverdueRemindAppService.UpdateRoomDjOverDusDays()00000049eeb8e210 00007ffa520174de Castle.DynamicProxy.AbstractInvocation.Proceed()00000049eeb8e260 00007ffa5201ee34 Mysoft.Map6.Core.Pipeline.Proxy.PipelineInvocation.Proceed()00000049eeb8e290 00007ffa5201ede4 Mysoft.Map6.Core.Pipeline.Proxy.Invoker.ServiceInvoker.TargetInvoke(Mysoft.Map6.Core.Pipeline.IPipelineInvocation)00000049eeb8e2c0 00007ffa5201a9f2 Mysoft.Map6.Core.Pipeline.Proxy.Invoker.AppServiceInvoker.Invoke(Mysoft.Map6.Core.Pipeline.IPipelineInvocation)00000049eeb8e4a0 00007ffa5201772a Mysoft.Map6.Core.Pipeline.Proxy.PipelineInterceptor.Intercept(Castle.DynamicProxy.IInvocation)00000049eeb8e500 00007ffa5201762f Castle.DynamicProxy.AbstractInvocation.Proceed()00000049eeb8e550 00007ffa52159bfc Mysoft.Slxt.TradeMng.Customize.PublicServices.DjOverdueRemindPublicService.UpdateRoomDjOverDueDaysAction(System.Object)00000049eeb8e590 00007ffa52159a87 Mysoft.Map6.Core.Service.AppService+c__DisplayClass22_0.b__0()00000049eeb8e620 00007ffa8b76c7e6 System.Threading.Tasks.Task.Execute()00000049eeb8e660 00007ffa8b7231d3 System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, System.Object, Boolean)00000049eeb8e730 00007ffa8b723064 System.Threading.ExecutionContext.Run(System.Threading.ExecutionContext, System.Threading.ContextCallback, System.Object, Boolean)00000049eeb8e760 00007ffa8b76ca85 System.Threading.Tasks.Task.ExecuteWithThreadLocal(System.Threading.Tasks.Task ByRef)00000049eeb8e810 00007ffa8b76c1b3 System.Threading.Tasks.Task.ExecuteEntry(Boolean)00000049eeb8e850 00007ffa8b762362 System.Threading.ThreadPoolWorkQueue.Dispatch()00000049eeb8ece8 00007ffaa70a6bb3 [DebuggerU2MCatchHandlerFrame: 00000049eeb8ece8] 00000049eeb8ee78 00007ffaa70a6bb3 [ContextTransitionFrame: 00000049eeb8ee78] 00000049eeb8f0a8 00007ffaa70a6bb3 [DebuggerU2MCatchHandlerFrame: 00000049eeb8f0a8] 根据上面的堆栈信息，此时已经定位到具体出问题的接口是 UpdateRoomDjOverDusDays 通常100%CPU会怀疑死循环和无限递归，搜索代码分析，发现有很多个循环，但都很难引起死循环或者无限递归。 此时陷入尴尬，继续思考… 看到上面的线程CPU时间超过1分钟的有多个，逐个打开看堆栈~47 s~50 s~49 s发现堆栈信息都是相同的，是同一个接口调用 会不会是多线程一起跑，导致吃掉了所有CPU… 为了印证这个猜想，继续分析源码，看看是否有开启多线程的地方…果然找到了，如下图 破案 短时间内运行多次调度任务，如何做到的？ 分析代码发现，这个接口的用途是调度任务，这个调度任务出厂时是每天凌晨1点执行一次，正常情况不会出现多次调用，分析有以下2种情况会出现多次调用 手动触发，调试接口，这个无日志，无证据，只能人工排除 人工将调度任务的执行间隔调整到其他间隔，比如一分钟一次，就可以造成多线程堆积 因为第一种情况无法确定，找不到证据，所以用排除法，先去找第二种可能的证据 首先去找系统的操作日志，发现的确在这个时间段有人操作个调度任务模块的功能，由于日志粒度不够细，无法断定是操作了什么功能 接下来就去找对应调度任务的运行日志，发现了问题…如图上图中，第一个时间是凌晨1点的正常调度但是在 16:41 分又调度了一次接着 16:42 分又开始了一次…后面还有30多次调度，每一个都是间隔一分钟 结论 到这里所有的问题已经得到证实 这个调度任务在16:41分时被人为将调度间隔改成了1分钟调度一次，由于是异步执行，每次调度都会立即返回，修改后30分钟左右才改回来。 在半小时内被调度了30多次，导致线程堆积，出现了瞬时CPU99%，20分钟后又逐渐下降（因为任务逐渐都执行完了） 后与相关操作人员证实，确实有进行过调度间隔改动，目的是为了手动触发调度任务。但由于不知道内部机制，配置改动后没有及时还原。 而且上面16：41分的最初调度时间也和最初的CPU预警时间吻合。]]></content>
+      <tags>
+        <tag>windbg</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[优雅的浏览器滚动截屏]]></title>
+    <url>%2F2019%2F07%2F14%2Fbrowser-screen%2F</url>
+    <content type="text"><![CDATA[转：https://zhuanlan.zhihu.com/p/37086019 ##利用 Chrome 浏览器的开发者工具截取整个页面 ####打开 Chrome 浏览器，进入需要截图的网站页面 等待页面加载完毕后，通过下面方法打开开发者工具在页面任何地方点击鼠标右键，在弹出菜单中选择“检查（Inspect）”选项，或者使用快捷键组合：Alt + Command + I (Mac) || Ctrl + Shift + I (Windows)使用快捷键组合来打开命令行（command palette）：Command + Shift + P (Mac) | Ctrl + Shift + P (Windows)在命令行中输入“Screen”，这时自动补齐功能会显示出一些包含 “Screen” 关键字的命令。移动方向键到“Capture full size screenshot”并回车（或直接用鼠标点击这个选项）]]></content>
+      <tags>
+        <tag>滚动截屏</tag>
+        <tag>screenshot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[WebApi,Mvc原理解析]]></title>
+    <url>%2F2019%2F07%2F12%2Fweb-api-mvc%2F</url>
+    <content type="text"></content>
+  </entry>
+  <entry>
+    <title><![CDATA[XMLHttpRequest异步下载文件]]></title>
+    <url>%2F2019%2F07%2F12%2Fajax-download-flie%2F</url>
+    <content type="text"><![CDATA[12345678910111213141516171819202122232425262728293031/** * 导出Excel */excel: function (params) &#123; var url = '/ureport2demo/report/excel'; var xhr = new XMLHttpRequest(); xhr.open('POST', url, true); // 也可以使用POST方式，根据接口 xhr.setRequestHeader("Content-Type","application/json; charset=utf-8"); xhr.responseType = "blob"; // 返回类型blob // 定义请求完成的处理函数，请求前也可以增加加载框/禁用下载按钮逻辑 xhr.onload = function () &#123; // 请求完成 if (this.status === 200) &#123; // 返回200 var blob = this.response; var reader = new FileReader(); reader.readAsDataURL(blob); // 转换为base64，可以直接放入a表情href reader.onload = function (e) &#123; // 转换完成，创建一个a标签用于下载 var a = document.createElement('a'); a.download = params.file+'.xlsx'; a.href = e.target.result; $("body").append(a); // 修复firefox中无法触发click a.click(); $(a).remove(); &#125; &#125; &#125;; // 发送ajax请求 xhr.send(JSON.stringify(params))&#125;]]></content>
+      <tags>
+        <tag>异步</tag>
+        <tag>下载</tag>
+        <tag>XMLHttpRequest</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[短信消息编辑器]]></title>
+    <url>%2F2019%2F07%2F07%2Fmsg-editor%2F</url>
+    <content type="text"><![CDATA[最近工作中需要实现一个预编辑短信的编辑器可以输入可以添加字段可以删除字段最终可以生成一个短信消息模板字符串如图：演示地址 实现源码： 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116117118119120121122123124125126127128129130131132133134135136137138139140141142143144145146147148149150151152153154155156157158159160161162163164165166167168169170171172173174175176177178179180181182183184185186187188189190191192193194195196197198199200201202203204205206207208209210211212213214215216217218219220221222223224225226227228229230231232233234235236&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt; &lt;title&gt;短信编辑器&lt;/title&gt; &lt;style type="text/css"&gt; .edit-content &#123; word-wrap: break-word; /*遇到空格整个单词显示不完就自动换行到下一行*/ word-break: break-all; /*如果一行没有空格就到头截断单词换行*/ outline: none; padding: 0 10px; display: block; height: 90px; overflow-y: auto; border: solid 1px #ddd; margin: 6px 0 6px 0; &#125; .edit-content span[contenteditable="false"] &#123; box-sizing: border-box; height: 22px; line-height: 16px; margin: 2px 0 2px 6px; border: none; padding: 3px 3px 3px 6px; border-radius: 2px; background-color: #eee; /*position: relative;*/ max-width: 100%; overflow: hidden; text-overflow: ellipsis; -ms-text-overflow: ellipsis; white-space: nowrap; &#125; .edit-content i &#123; margin-left: 5px; margin-right: 5px; color: #898989; cursor: pointer; &#125; .edit-content i:hover &#123; color: #333; &#125; .edit-content .item &#123; border: solid 1px #d8d8d8; background: #e4e4e4; padding: 0px 0px 0px 5px; line-height: 30px; min-height: 30px; float: left; margin-bottom: 5px; margin-right: 5px; cursor: default; &#125; .edit-content .item:hover &#123; background: #def0ff; border-color: #aad8ff; &#125; .edit-content .item.active &#123; background: #0066cc; border-color: #0066cc; color: #fff; &#125; .edit-content .item cite &#123; font-style: normal; font-size: 18px; float: right; line-height: 18px; text-align: center; width: 18px; height: 18px; cursor: pointer; margin: 5px 5px 0px 5px; &#125; .edit-content .item cite:hover &#123; background: #0066cc; color: #fff; &#125; &lt;/style&gt; &lt;script src='http://code.jquery.com/jquery-latest.js'&gt;&lt;/script&gt;&lt;/head&gt;&lt;body&gt; &lt;button class='addField'&gt;add &lt;/button&gt; &lt;button class='getMessage'&gt;getmessage &lt;/button&gt; &lt;div contenteditable="true" class="edit-content"&gt; &lt;/div&gt; &lt;div class="msg"&gt; &lt;/div&gt;&lt;/body&gt;&lt;script type="text/javascript"&gt;$(function() &#123; var msgeditor = &#123; /** * 字段列表 * @type &#123;Array&#125; */ fields: [ &#123; text: "房间简称", value: "ShortRoomInfo" &#125;, &#123; text: "款项名称", value: "ItemName" &#125;, &#123; text: "余额", value: "RmbYe" &#125;, &#123; text: "逾期天数", value: "OverDay" &#125;, ], /** * 初始化 * @return &#123;[type]&#125; [description] */ init: function() &#123; this.reminderContent = $(".edit-content") this.btnAddField = $(".addField") this.getMessage = $(".getMessage") this.setContent("【欠款提醒】&#123;ShortRoomInfo&#125;，&#123;ItemName&#125; &#123;RmbYe&#125;元，逾期&#123;OverDay&#125;天。"); this.ieFix() //修复IE下兼容性问题 this.bindEvent() &#125;, /** * 获取一个随机整数 * @param &#123;[type]&#125; max [description] * @return &#123;[type]&#125; [description] */ getRandomInt: function(max) &#123; return Math.floor(Math.random() * Math.floor(max)); &#125;, /** * 绑定事件 */ bindEvent: function() &#123; var me = this; //绑定内容区域的按键事件 me.reminderContent.on("click", "i", function(e) &#123; //删除按钮事件 this.parentNode.remove() &#125;) //添加 me.btnAddField.on("click", function(e) &#123; me.addFieldToContent(me.fields[me.getRandomInt(me.fields.length)]) &#125;) //获取消息 me.getMessage.on("click", function(e) &#123; $(".msg").html(me.getContent()) &#125;) &#125;, /** * 判断是否是ie浏览器 */ isIE: function() &#123; if (!!window.ActiveXObject || "ActiveXObject" in window) return true; else return false; &#125;, /** * 修复contenteditable的Ie兼容性问题 */ ieFix: function() &#123; if (this.isIE() === false) return; $(document).on("keydown", function(e) &#123; var selection = window.getSelection() //不可编辑元素内禁用键盘 if (selection &amp;&amp; selection.focusNode) &#123; var contentEditable = selection.focusNode.contentEditable || selection.focusNode.parentNode.contentEditable; if (contentEditable == "false" &amp;&amp; e.keyCode != 8) &#123; return false; &#125; &#125; //如果此时按下了退格键，且前一个元素是无法编辑的元素（通常是x按钮），则直接整个删除（触发删除事件） //如果当前元素的前一个元素是无法编辑的元素，或者父元素是无法编辑的元素，都要直接删除 //策略：首先尝试触发click，然后触发删除。 if (e.keyCode == 8) &#123; $(selection.focusNode.parentNode.contentEditable == "false" &amp;&amp; selection.focusNode.parentNode).click(); $(selection.focusNode.contentEditable == "false" &amp;&amp; selection.focusNode).click(); $(selection.focusNode.parentNode.contentEditable == "false" &amp;&amp; selection.focusNode.parentNode).remove(); $(selection.focusNode.previousSibling &amp;&amp; selection.focusNode.previousSibling.contentEditable == "false" &amp;&amp; selection.anchorOffset == 0 &amp;&amp; selection.focusNode.previousSibling).remove(); &#125; else if (e.keyCode == 46) &#123; return false; //不允许使用del按键 &#125; &#125;) &#125;, /** * 获取消息内容 * @returns &#123;*&#125; */ getContent: function() &#123; var me = this; var msg = me.reminderContent.text(); me.fields.forEach(function(field) &#123; var reg = new RegExp(field.text + "x", "g"); msg = msg.replace(reg, "&#123;" + field.value + "&#125;"); &#125;) return msg; &#125;, /** * 设置消息内容 * @param msg */ setContent: function(msg) &#123; var me = this; var msgresult = msg; //var msgresult = "&lt;span class='editor-text'&gt;【应收款】&lt;br&gt;&lt;/span&gt;&#123;ShortRoomInfo&#125;&lt;span class='editor-text'&gt;&lt;br&gt;&lt;/span&gt;&#123;ItemName&#125;&lt;span class='editor-text'&gt;逾期已达&lt;br&gt;&lt;/span&gt;&#123;OverDay&#125;&lt;span class='editor-text'&gt;，请关注！&lt;br&gt;&lt;/span&gt;&#123;RmbYe&#125;&lt;span class='editor-text'&gt;&lt;br&gt;&lt;/span&gt;"; me.fields.forEach(function(field) &#123; var reg = new RegExp("&#123;" + field.value + "&#125;", "g"); msgresult = msgresult.replace(reg, "&lt;span contenteditable='false'&gt;" + field.text + "&lt;i contenteditable='false'&gt;x&lt;/i&gt;&lt;/span&gt;"); &#125;); me.reminderContent.html(msgresult); &#125;, /** * 向消息内容中添加字段 * @param field */ addFieldToContent: function(field) &#123; var me = this; var html = " &lt;span contenteditable='false'&gt;" + field.text + "&lt;i contenteditable='false'&gt;x&lt;/i&gt;&lt;/span&gt; "; me.reminderContent.append(html); &#125;, &#125; $(document).ready(function() &#123; msgeditor.init(); &#125;)&#125;)&lt;/script&gt;&lt;/html&gt;]]></content>
+      <tags>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[SqlServer性能优化]]></title>
+    <url>%2F2019%2F07%2F03%2Fsql-performance-optimization%2F</url>
+    <content type="text"><![CDATA[#####]]></content>
+      <tags>
+        <tag>性能优化</tag>
+        <tag>mssql</tag>
+        <tag>sql</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[二维码扫描枪中文乱码问题终极解决方案]]></title>
+    <url>%2F2019%2F06%2F30%2Fqrcode-scan-chinese%2F</url>
+    <content type="text"><![CDATA[问题背景二维码（内容是，英文字母加数字）扫描时在PC端是需要一个扫描枪来用红外识别的，此扫描枪其实实在模拟键盘输入，相当于就是个键盘。场景要求：同一个输入框，用户既可以手动录入中文，也能接着就扫描。问题来了： 输入中文时必然是中文输入法，所以网友说的禁止输入中文的方法行不通。 如果输入了中文，再扫码，必然会出现模拟键盘输入，将二维码中的英文字母和数字合并成中文输出到表单中 扫码枪都没有驱动也没有独立的事件，无法通过事件去区分扫码还是键盘输入，故而无法去做响应。 所以我们的核心目标就是需要模拟一个二维码扫描事件，这个事件能够在触发时告诉我二维码的真实内容，然后就可以拿着这个真实内容去干活了，而不用考虑输入法的干扰。（干活后还能回来将这写中文内容替换成二维码内容，提升用户视觉体验） 预期效果： 用户输入完中文，搜索无果后，马上想到扫码快速解决问题，这时不用清空输入框，也不用切换输入法，直接拿起扫描枪就扫二维码，滴，1秒出结果。 扫描第一张二维码之后，继续扫第二张，第三张…..中途无需清空输入框 解决思路： 确定一个二维码的业务规则，如：是否包含数字，是否包含字母，二维码的固定长度，需要精确到能够识别出来这是否是一个二维码，这个很关键，决定了这个方案的可用性，总不能所有二维码都可以扫。 扫码就是键盘输入，那么一定会触发键盘抬起事件keyup,利用这个事件去记录实际按下的英文按键字符串，形成一个真实的二维码内容 检测键盘按下和抬起的速度，扫码枪的按下和抬起的间隔都在70ms以下，所以可以根据这个时间来粗暴的判断单次按键是扫描枪扫描的还是手动输入的。 当然手动输入也可以低于70ms，但是稳定且持续到二维码全都输入完成，也是很小的机率，即便出现了，还有最后一道防线，二维码规则不对的也不会算作扫码。 根据以上的所有条件即可精确判断出(99%)是否是扫描的二维码，那么也就可以模拟一个二维码扫描的事件出来了。 有了二维码扫描事件，就可以拿着这个响应事件中的二维码内容去干活了。 jquery插件已写好，需要的自取使用示例：1234567891011121314//监听扫描抢输入var me=this;me.$searchInput.startListen(&#123; show : function(code)&#123; me.btnSearchEvt(code).then(function()&#123; //中文输入法完成后输入到文本框这个中间会有延迟，这里需要延后替换，不然会被输入法覆盖。 setTimeout(function () &#123; //为了保证查询的结果是输入框上的二维码对应的内容，保证最终一致性 me.$searchInput.val(code); &#125;, 500); &#125;); this.clearRealKeys(); &#125;&#125;); 插件代码：123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116117118119120121122123124125126127128129130131132133134135136137138139140141142143144145146147148149150151152153154155156157158159160161162163164165166167168169170171172173174175176177178179180181182183184185186187188189190191192193194195196197198199200201202203204205206207208209210211212213214215216217218219220221222223224225226227228229230231232233234235236237238239240241242243244245246247248249250251252253254255256257258259260261262263264265266267268var barcode = &#123; functionalKeyArray : [9, 20, 13, 16, 17, 18, 91, 92, 93, 45, 36, 33,32, 34, 35, 37, 39, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 144, 19, 145, 40, 38, 27], //键盘上功能键键值数组 listenerObj: null, letter: false, number: true, check: true, realKeys:"", /* 一次按键时间间隔 */ oneKeyTime: '', /* 两次按键时间间隔 */ twoKeyTime: '', /* 键按下的时间 */ keyDownTime: '', /* 条形码长度 */ barcodeLen: 8, /* 一次按键按下到释放的时间间隔 */ spanTime: 80, /* 零的key值 */ zerokeyVal: 48, /* 数字9的key值 */ ninekeyVal: 57, /* a的key值 */ akeyVal: 65, /* z的key值 */ zkeyVal: 90, /** * 展示扫描结果 * @return &#123;[type]&#125; [description] */ show: function() &#123;&#125;, /** * 校验手动输入 * @return &#123;[type]&#125; [description] */ checkHandInput: function() &#123; if (this.oneKeyTime &gt; this.spanTime) &#123; return true; &#125; return false; &#125;, /** * 键盘开始按下 * @return &#123;[type]&#125; [description] */ on_key_down: function() &#123; // var that = this; // this.listenerObj.keydown(function(e) &#123; // // &#125;); &#125;, /** * 键盘抬起 * @return &#123;[type]&#125; [description] */ on_key_up: function() &#123; var that = this; this.listenerObj.keyup(function(e) &#123; //不管如何,记录按键,最终以记录的按键为准. that.recordKeys(e); //过滤掉二维码里面的回车,统一由扫描插件回调后代码统一处理后续业务.避免重复触发(回车后触发业务很常见,所以扫描枪自带回车,二维码自带的回车都要屏蔽掉) if(e.keyCode===13)&#123; return false; &#125; var d = new Date(); var keyUpTime = d.getTime(); that.oneKeyTime = parseInt(keyUpTime) - parseInt(that.keyDownTime); var isHand = that.checkHandInput(); //是手动输入则不做默认处理，但是要清空按键记录，避免用户先手动按键，再扫描二维码的场景下，将两个按键记录拼接后导致查询不出来结果。 if (that.check &amp;&amp; isHand &amp;&amp; that.in_range(e.which)) &#123; that.clearRealKeys(); &#125; else if (that.check &amp;&amp; !isHand &amp;&amp; that.check_barcode()) &#123; //说明是非手动输入，则直接将记录的按键填充到输入框中，无视客户端的输入法。 that.createListEl(); &#125; &#125;); &#125;, /** * 键盘已经按下 * @return &#123;[type]&#125; [description] */ on_key_press: function() &#123; //var that = this; // this.listenerObj.keypress(function(e) &#123; // if (e.which == 13 &amp;&amp; that.check_barcode()) &#123; // that.createListEl(); // &#125; // &#125;); &#125;, /** * 记录按键 * @param e */ recordKeys:function(e)&#123; var that=this; var d = new Date(); var curTime = parseInt(d.getTime()); if (that.keyDownTime !== '' &amp;&amp; _.isNaN(that.keyDownTime)==false) &#123; that.twoKeyTime = curTime - that.keyDownTime; &#125; that.keyDownTime = curTime; //过滤掉功能按键，包括空格和换行 if(that.functionalKeyArray.some(function(k)&#123;return k===e.keyCode&#125;))&#123; return; &#125; //如果是中文输入法，则需要记录真实按键 if(e.keyCode===229)&#123; //e.originalEvent.code 有可能未定义，此时尝试获取key if(!e.originalEvent)return; var code=e.originalEvent.code||e.originalEvent.key||""; var key=code.replace("Key","").replace("Digit","").replace("NumPad",""); var realkey=that.keyMap[key]; key=realkey===undefined?key:realkey; that.realKeys+=key; console.log(that.realKeys); return &#125; //按下退格键，清空按键记录 if(e.keyCode===8)&#123; that.clearRealKeys(); return; &#125; that.realKeys= that.realKeys+e.key; console.log(that.realKeys) &#125;, /** * 校验条码结果是否满足条件 * @return &#123;[type]&#125; [description] */ check_barcode: function() &#123; var code = this.realKeys; if (code.length !== this.barcodeLen) &#123; //$(this.listenerObj).val("").focus(); return false; // layer.msg('条形码不合法',&#123;time : 800&#125;); &#125; return true; &#125;, /** * 判断按下的键是否在字母加数字这个范围 * @param &#123;[type]&#125; key [description] * @return &#123;[type]&#125; [description] */ in_range: function(key) &#123; var isLegal = false; if (this.number) &#123; isLegal = this.is_number(key); &#125; if (this.letter) &#123; isLegal = this.is_letter(key); &#125; if (this.number &amp;&amp; this.letter) &#123; isLegal = this.is_number || this.is_letter ? true : false; &#125; return isLegal; &#125;, /** * 按钮是否是数字 * @param &#123;[type]&#125; key [description] * @return &#123;Boolean&#125; [description] */ is_number: function(key) &#123; if (key &gt; this.ninekeyVal || key &lt; this.zerokeyVal) &#123; return false; &#125; return true; &#125;, /** * 按钮是否是字母 * @param &#123;[type]&#125; key [description] * @return &#123;Boolean&#125; [description] */ is_letter: function(key) &#123; if (key &gt; this.zkeyVal || key &lt; this.akeyVal) &#123; return false; &#125; return true; &#125;, /** * 校验是否联网 * @return &#123;[type]&#125; [description] */ check_network: function() &#123; //return navigator.onLine ? true : false; &#125;, /** * 创建扫描结果 * @return &#123;[type]&#125; [description] */ createListEl: function() &#123; if (typeof this.show == 'function') &#123; this.show(this.realKeys); // layer.msg('扫描成功',&#123;time:1000&#125;); &#125; else &#123; //layer.msg('no callback function'); &#125; //this.listenerObj.val("").focus(); &#125;, /** * 清空按键记录 * @return &#123;[type]&#125; [description] */ clearRealKeys: function() &#123; this.realKeys=""; //console.log("clearRealKeys.") &#125;, /** * 保持激活输入框 * @return &#123;[type]&#125; [description] */ keepFocusInput: function() &#123; this.listenerObj.blur(function() &#123; var that = $(this); setTimeout(function() &#123; that.focus().select(); &#125;, 100); &#125;); &#125;, /** * 开始监听 * @param &#123;[type]&#125; listenerObj [description] * @param &#123;[type]&#125; settings [description] * @return &#123;[type]&#125; [description] */ startListen: function(listenerObj, settings) &#123; for (var member in settings) &#123; if (typeof barcode[member] !== 'undefined') &#123; barcode[member] = settings[member]; &#125; &#125; barcode.listenerObj = listenerObj; this.on_key_down(); this.on_key_up(); this.on_key_press(); //this.keepFocusInput(); this.listenerObj.focus().select(); &#125; &#125;; $.fn.startListen = function(options) &#123; var settings = $.extend(&#123; barcodeLen :76, letter : true,//允许有字母 number : true,//允许有数字 check : true &#125;, options); //设置微软自带中文输入法下的key为标准key barcode.keyMap=$.extend(&#123; "Comma":",",//微软输入法逗号关键字替换 "Minus":"-",//微软输入法关键字替换 "Enter":"",//微软输入法关键字忽略 "ShiftLeft":"",//微软输入法关键字忽略 "ArrowDown":"",//windows搜狗中文输入法忽略 "Space":""//windows搜狗中文输入法忽略 &#125;, options.keyMap); barcode.startListen(this, settings); &#125;]]></content>
+      <tags>
+        <tag>二维码</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[性能优化-嵌套循环]]></title>
+    <url>%2F2019%2F03%2F19%2Fperformance-optimization%2F</url>
+    <content type="text"><![CDATA[算法的质量很大程度上取决于执行速度，也就是平时提到的性能，大O复杂度表示法可以在不运行算法情况下从代码分析的角度很准确的分析出算法的瓶颈。 下面有一段很简单的代码，我们用大O复杂度表示法，来分析下他的执行效率12345678int cal(int n) &#123; int sum = 0; int i = 1; for (; i &lt;= n; ++i) &#123; sum = sum + i; &#125; return sum;&#125; 假设每一行的执行时间都一样，为：unit_time 观察上面的代码 第2、3行代码分别需要1个unit_time 第4、5行运行了n遍，所以需要2*n个unit_time 所以上面的代码总执行时间为T(n)=(2n+2)*unit_time 再看第二段代码：1234567891011int cal(int n) &#123; int sum = 0; int i = 1; int j = 1; for (; i &lt;= n; ++i) &#123; j = 1; for (; j &lt;= n; ++j) &#123; sum = sum + i * j; &#125; &#125;&#125; 根据刚刚讲的逻辑，可以得出，此段代码的执行时间是 T(n) = (2n^2+2n+3)*unit_time 前人已经给我们总结了大O的公式 T(n)=O(f(n))f(n) 表示每行代码执行的次数总和 所以可以得出 第一段代码的时间复杂度大O表示法为：O(2n+2) 第二段代码的时间复杂度大O表示法为：O(2n^2+2n+3) 在分析时间复杂度时我们只需要关注循环的那一段 所以可以简化为 第一段：O(n)，线性复杂度 第二段：O(n^2)，指数阶复杂度 不难看出，嵌套循环对性能的影响是巨大的，更别说3层和4层嵌套了。 我们在性能优化时，更多的应该去关注循环语句，将循环次数和层数降下来，性能自然就会变优]]></content>
+      <tags>
+        <tag>性能优化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[熵增感悟]]></title>
+    <url>%2F2019%2F03%2F09%2Fshangzenglilun%2F</url>
+    <content type="text"><![CDATA[变得复杂是必然，变得简单是目标熵增原理：熵增原理就是孤立热力学系统的熵不减少，总是增大或者不变。 在统计学意义上，熵度量的是系统的无序度，也就是说，系统越杂乱无章，它的熵值越大。 那么一个系统的无序度何时最大呢，答案是系统达到宏观平衡时。举个例子，一间长时间无人照料的屋子一定会越来越脏，在没有外界干扰的情况下，每一粒灰尘都会无序的落到任何角落，最终会变成一层灰。如果此时有个人（小明）打扫，熵就会减少，无序度就会减少，屋子就会变得有序，但是小明由于打扫出汗发热了，小明本身的无序度增加了，热力学第二定律提出了“孤立系统”的概念，在这个例子中，“小明和屋子”这个孤立系统在小明打扫屋子的过程中消耗体力产生热量导致了这个孤立系统整体的熵值增加，虽然屋子变的有序（熵值减少），但是小明却变得无序（熵增），熵增定律（孤立系统的熵值智能增加不能减少）所以在没有外力对“小明和屋子”这个孤立系统做功时，它的熵值是不会减少的，那么如何对这个系统做功呢，答案很简单，小明吃东西喝水的过程就是外界对小明和屋子做功的过程，小明摄取外界的有序能量，增加了系统的有序度。 那么回到现实，我们的系统一定会越来越复杂，这是熵增定律导致的必然结果。 如何让系统越有序和简单呢？答案是做功。 学习，改进，设计，优化，用行业最佳实践，先进理论，来迭代改造我们的系统和企业，这些都是在对咱们的系统做功。 只要不断对系统做功，熵值就会持续减少，变得有序和简单。 所以咱们没有必要去抱怨系统以及生活甚至是世界为什么会变得越来越复杂，因为这是必然，我们要做的就是与熵增抗争，牛逼的人是熵值低的人，牛逼的团队熵值也必然是很低的，只要我们一起携手，利用每个人身边的能量来对咱们的系统做功。我们的工作生活都会变得越来越有序和简单。 生命是否也是如此生于混沌，死于混沌，成长的过程就是从混沌开始不断对自身做功（吃喝拉撒学习工作生活）来使自己的孤立系统熵值降低变得有序，变老的过程就是孤立系统渐渐趋于稳定最终归于混沌。]]></content>
+      <tags>
+        <tag>熵</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[我们应该如何保证代码质量]]></title>
+    <url>%2F2019%2F01%2F23%2Fcode-isolation%2F</url>
+    <content type="text"><![CDATA[人 思想：提前思考如何避免低质量代码，并不断总结保持初心，觉得写低质量代码是耻辱。持续不断的寻找代码质量与时间成本的平衡点，保持敬畏心，保持对高质量代码的不断追求的进取心。 素质：保持对低质量代码敏感度，有洁癖，不妥协与进度和时间的压力代码是会腐烂的，持续学习，勇敢的重构陈旧腐烂的代码，不要等爆炸后再来补救。 技能：熟练代码设计能力，80%设计 20%编码熟练重构低质量代码提高可读性以及可维护性，增加代码复用率善于发现代码质量隐患 团队 团队高度统一的对代码质量足够重视。不能只是停留在嘴上说要保证代码质量，但是还是在无视各种代码质量活动，我私下做过一个调查，80%的人都认为CodeReview之所以难以推行是因为“没时间”，但在我看来，真正阻碍我们的是“对低质量代码治理的决心”，咱们的团队把80%的时间都花在被动苦干治理（改BUG，代码腐烂之后重构）低质量代码上了，而对于可以预防低质量代码的提前思考的手段（Code Review 单测 代码详细设计）很轻视。这说明咱们并不是没时间，只是咱们从小所受的教育使我们“勤于苦干，懒于思考”。 代码隔离，保护保证代码质量的基础手段，都在一个锅里吃饭很容易交叉感染，保持对代码的隔离也是团队保持对代码敬畏的一个最基本手段。结对编程：碰到不确定和复杂问题时一定要结对编程，既可以提高编程效率，也可以填补单人认知不足导致的不必要的代码缺陷引入。 TDD测试驱动开发，单测先行,也是需要从团队基因和思想层面改进的东西，事后补单测的行为只能发挥单测20%的价值。单测不光是为了覆盖率和报告，单测是开发阶段质量保证手段，也是支撑重构的保证。没有单测保证，CodeReview后的重构完全是在走钢丝，很容易就摔死了。Code Review：无处不在，不应该排任务，也不应该去量化，这件事情是每个工程师的基本责任，也是团队文化，随时看见烂代码和坏味道都应该勇敢的指出并大胆重构小心测试。前提是需要完整的单元测试来保证质量。 工具：工具是目前最容易发力的地方，见效快，但也很有限，真正能够保证代码质量的还是在“人”和“团队”这两个方面。 GitLab merge request 做代码隔离 Start UML提前做好实现方案设计，并通过团队和架构师的评审 XUnit 做全业务场景覆盖的单元测试，支撑日后的不断重构优化]]></content>
+      <tags>
+        <tag>GitLab</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[深入理解C#可空类型Nullable]]></title>
+    <url>%2F2018%2F11%2F23%2Fnullable%2F</url>
+    <content type="text"><![CDATA[花时间研究了下C#的源码，发现了点一起不清晰的东西，分享出来 问题1：int? i =null;为什么可以把null赋值给值类型首先，并不存在可为空的值类型可为空的值类型Nullable只是在逻辑层面上实现了把null赋值给值类型，给人一种值类型可为null的感觉。Nullable 是一个结构体，内部有两个成员，public bool HasValue 和 private innerValue int? i =null;代码做了1件事1.判断赋值为null时直接返回new Nullable(); CLR在对Nullable实例执行装箱操作时首先检查它是否为null，若为null则CLR不装箱任何东西而是直接返回null；若实例的值不是null则获取该实例的值（Value属性）并对这个值进行装箱操作 问题2: int? i = 3; i.GetType();//为什么返回 int32Nullable 并没有重写GetType方法，所以在调用GetType之前会先装箱到Object相当于 int? i=3; object a=i; a.GetType();所以是Int32]]></content>
+      <tags>
+        <tag>Nulable&lt;T&gt;</tag>
+        <tag>可空类型</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Promise 本质上是一个有限状态机]]></title>
+    <url>%2F2018%2F09%2F05%2Fpromise%2F</url>
+    <content type="text"><![CDATA[状态机是什么？ promise本质上是一个有限状态机，将下列代码粘贴到任何一个支持ES6的浏览器下都可以正常使用，与本来的promise使用方法没有区别,下面是具体的代码。代码很短，但能完整诠释Promise原理。12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576777879808182838485868788899091//promise的本质就是一个有限状态机class Promise2 &#123; constructor(fn) &#123; let me=this; me.__queue = []; me.__status=''; me.__success_res=null; me.__error_res=null; fn&amp;&amp;fn(value=&gt;&#123;me.resolve(value)&#125;, reason=&gt;&#123;me.reject(reason)&#125;); &#125; resolve(...args)&#123; this.__status = 'success'; this.__success_res = args; this.__queue.forEach(json=&gt;&#123; json.resolve(...args); &#125;); &#125; reject(...args)&#123; this.__status = 'error'; this.__success_res = args; this.__queue.forEach(json=&gt;&#123; json.reject(...args); &#125;); &#125; then(resolve, reject) &#123; if (this.__status == 'success') &#123; resolve(...this.__success_res); &#125; else if (this.__status == "error") &#123; reject(...this.__error_res); &#125; else &#123; this.__queue.push(&#123; resolve, reject &#125;); &#125; &#125;&#125;Promise2.all=function(args)&#123; let res=[]; let p= new Promise2(); let i=0; next(); function next()&#123; let me=this; args[i].then(function(re)&#123; res.push(re); i++; if (i==args.length) &#123; p.resolve(res); &#125;else&#123; next(); &#125; &#125;,p.reject); &#125; return p;&#125;//test1let p=new Promise2(function(resolve,reject)&#123; setTimeout(function()&#123; resolve(12); &#125;,500);&#125;);p.then(function(params)&#123; alert(params);&#125;,function(params)&#123; alert("失败");&#125;);//test2let p1=new Promise2();setTimeout(function()&#123; p1.resolve(13);&#125;,500);p1.then(num=&gt;&#123; alert(num);&#125;);//test3let p2=new Promise2();setTimeout(function()&#123; p2.resolve(12);&#125;,500);let p3=new Promise2();setTimeout(function()&#123; p3.resolve(13);&#125;,500);Promise2.all([p2,p3]).then(function(args)&#123; alert(args[0]+args[1]);&#125;);]]></content>
+      <tags>
+        <tag>promise</tag>
+        <tag>本质</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[macOS High Sierra 10.13.* 系统中找回telnet命令]]></title>
+    <url>%2F2018%2F07%2F27%2Ftelnet-cli%2F</url>
+    <content type="text"><![CDATA[macOS升级到High Sierra后发现telnet命令不见了，两个命令教大家找回安装Homebrew1$ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" 安装telnet1$ brew install telnet over]]></content>
+      <tags>
+        <tag>brew</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Gitflow日常工作中如何高效的实践Codereview]]></title>
+    <url>%2F2018%2F07%2F01%2Fcode-review%2F</url>
+    <content type="text"><![CDATA[工作中主代码仓库刚刚从TFS切换到Git，工作中的小伙伴还有很多不熟悉，思想也还停留在TFS中，并且我们以前并不重视代码检视，或者说做的不好，现在使用gitlab做源代码管理，有了天然的环境来推行高效的代码检视流程和规范。为此我花了点时间梳理了一版Gitflow中的代码检视实践方案。如图 图片看不清的话，点这里]]></content>
+      <categories>
+        <category>Git</category>
+      </categories>
+      <tags>
+        <tag>Gitflow</tag>
+        <tag>Codereview</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Git 如何管理本地分支-删除多余分支]]></title>
+    <url>%2F2018%2F06%2F30%2Fmanage-branch%2F</url>
+    <content type="text"><![CDATA[查找已经合并过的分支，也就是当前分支的直接上游分支，这些分支的特性通常都已经合并到当前分支了，推荐删除123$ git branch --merged* master branch1 //直接上游分支，可以删除 与其相反的分支，就是没有合并过的分支，如果删除这些分支，则会抛出错误，阻止危险操作12345$ git branch --no-merged branch2 //还没有与当前分支合并，不能删除$ git branch -d branch2error: The branch 'testing' is not fully merged.If you are sure you want to delete it, run 'git branch -D testing'. 当然，你可以强制删除，用大写的D即可 -D123$ git branch --no-merged branch2 //还没有与当前分支合并，不能删除$ git branch -D branch2 参考文献：http://iissnan.com/progit/html/zh/ch3_3.html]]></content>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Git 如何删除远程分支]]></title>
+    <url>%2F2018%2F06%2F30%2Fpush-branch-to-remote%2F</url>
+    <content type="text"><![CDATA[Git删除远程分支的语法很无里头1$ git push origin :远程分支1 单看这个命令真的很难理解但是如果结合新增一个远程分支的命令来记忆，就很容易了，接着看将本地的分支推送到远程仓库1$ git push [远程名] 本地分支1 :本地分支1 //上传我本地的 本地分支1 到远程仓库中去，称它为 本地分支1 我们平时使用的都是1$ git push [远程名] 本地分支1 这其实可以看作是语法糖，实际执行的命令还是前者。所以这样对比来看就好记了。删除远程分支的语法可以解读为：$ git push origin :远程分支1 //上传一个空白 到远程仓库中去，覆盖 远程分支1 参考文献：http://iissnan.com/progit/html/zh/ch3_5.html]]></content>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[如何从Github上下载单个文件（适用于Mac与linux用户）]]></title>
+    <url>%2F2018%2F06%2F30%2Fdownload-singlefile-from-github%2F</url>
+    <content type="text"><![CDATA[举例，从Github上下载git的源码中的一个自动完成git命令的bash命令文件 git/contrib/completion/git-completion.bash首先需要打开文件的原始页面，这个很容易，点击右上角的Raw按钮即可接下来就会跳转到一个新页面地址如下，由于我的本地git版本是2.14.3，所以我查看此命令时也选择tag v2.14.3的标签去打开 https://raw.githubusercontent.com/git/git/v2.14.3/contrib/completion/git-completion.bash 然后打开终端，输入如下命令，即可下载到本地1234wjjmac:~ zongzijie$ curl 'https://raw.githubusercontent.com/git/git/v2.14.3/contrib/completion/git-completion.bash' &gt;&gt; .git-completion.bash % Total % Received % Xferd Average Speed Time Time Time Current Dload Upload Total Spent Left Speed100 70930 100 70930 0 0 17501 0 0:00:04 0:00:04 --:--:-- 17504 可以看到，已经将命令下载到本地了，现在只需要输入命令的前几个字母，马上就能自动提示了123wjjmac:~ zongzijie$ source .git-completion.bashwjjmac:~ zongzijie$ git stastage stash status]]></content>
+      <tags>
+        <tag>MacOs</tag>
+        <tag>Github</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Git错误解决方案]]></title>
+    <url>%2F2018%2F06%2F30%2Fsolution%2F</url>
+    <content type="text"><![CDATA[问题：Rename from ‘D:/Git/slxt/.git/index.lock’ to ‘D:/Git/slxt/.git/index’ failed. Should I try again? (y/n) 解决办法rm -rf .git/index –清除暂存git reset –mixed head –强制恢复到工作区域状态]]></content>
+      <tags>
+        <tag>Git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[git status 中文路径乱码问题解决方案]]></title>
+    <url>%2F2018%2F06%2F26%2Fluanma%2F</url>
+    <content type="text"><![CDATA[问题1$ git status 直接上代码1$ git config –-global core.quotepath false over]]></content>
+      <tags>
+        <tag>git</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[基于Eslint兼容TFS与Git两种仓库的静态代码扫描平台]]></title>
+    <url>%2F2018%2F06%2F24%2Fstatic-check%2F</url>
+    <content type="text"><![CDATA[先看效果首页Git检查TFS检查统计规则列表eslint报告 废话不多说直接上代码下载代码，安装依赖环境：macOs依赖：node git mongodb(需要提前安装)12345678910111213141516171819$ git clone https://github.com/zongzijie/static-code-check.git static-checkCloning into 'static-check'...remote: Counting objects: 390, done.remote: Compressing objects: 100% (28/28), done.remote: Total 390 (delta 14), reused 36 (delta 10), pack-reused 340Receiving objects: 100% (390/390), 114.90 KiB | 255.00 KiB/s, done.Resolving deltas: 100% (204/204), done.$ cd static-check/$ npm installnpm ERR! code EBADPLATFORM npm ERR! notsup Unsupported platform for node-windows@0.1.14: wanted &#123;"os":"win32","arch":"any"&#125; (current: &#123;"os":"darwin","arch":"x64"&#125;)npm ERR! notsup Valid OS: win32npm ERR! notsup Valid Arch: anynpm ERR! notsup Actual OS: darwinnpm ERR! notsup Actual Arch: x64npm ERR! A complete log of this run can be found in:npm ERR! /Users/zongzijie/.npm/_logs/2018-06-24T08_52_57_971Z-debug.log$ 安装NPM依赖时，在非windows平台上会报错（如上），尽管忽略，node-windows 是为了在windows平台上实现windows服务开机自启动所做的优化，可以支持开机自动启动站点服务，但还在测试阶段可能会有bug。接下来 安装 MongoDB1$ sudo brew install mongodb 创建 MongoDB 数据库1$ sudo mkdir -p /data/db 运行 MongoDB1$ sudo mongod 如果需要支撑TFS仓库的代码检查，还需要安装git-tf1$ brew install git-tf 运行站点1$ node bin/www 访问：http://localhost:3000/ 最后还是要对的起自己，说说做这个平台的初衷代码这个东西不维护的话，随着时间推移，环境变迁，时代推进，代码是会腐烂变质的。这个代码检查平台主要是为了工程度量，作为完成标尺的一部分，比如不允许有错误，在某个时间点，问题必须归零，还可以使用自动构建–目前只支持webapi（其实就是直接模拟http客户端调用检查接口，具体使用方法就不多说了，与用户点击开始检查没两样，可以自行模拟）]]></content>
+      <categories>
+        <category>轮子</category>
+        <category>代码</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+        <tag>javascript</tag>
+        <tag>mongodb</tag>
+        <tag>git-tf</tag>
+        <tag>nodejs</tag>
+        <tag>eslint</tag>
+        <tag>express</tag>
+        <tag>TFS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[恭喜，我终于开始写博客了]]></title>
+    <url>%2F2018%2F06%2F23%2Fstart%2F</url>
+    <content type="text"><![CDATA[抗拒从小讨厌写日记，无他，就觉得很矫情，那是小女孩才做的事情，男人就应该做大事。 敷衍1$ echo 'hello world!' //第一行代码 工作了，要发日报，周报，当然，我是抗拒的，不过为了软妹币，我写了，都是流水帐：1.完成了某某功能，2.写了某某文档，3.开了某某会。 迷茫1234$ whoami //我是谁zongzijie$ pwd //我在哪/Users/zongzijie 时间长了，渐渐发现，一身所学不成系统，与人交流也无底气，昨天干了什么不记得，明天要做什么不清楚，混混度日。 复杂事情变得复杂，遇到的人也慢慢变得复杂，上班开会，加班撸代码，忙不完的工作，看不完的邮件，处理不完的消息。 延期遇到困难绕着走，临时方案、TODO、技术债务、待补充的单元测试、乱糟糟的笔记、看不懂的文档，堆积成山。老板：怎么又延期了？ 改变是时候放慢脚步，看看自己，已经拥有的沉淀下来，需要获取的写下计划、把更多的精力投入到对未来有助益的事情上。 学习、传递从单个细胞到人类，分裂、繁殖，其实都只有一个使命–传递知识，再无其他，如果我能够做到把以往的知识储备与今天所学完整传递给明天的自己，那么我就成功了。 记录记录这件事看似枯燥，但是细想，其实记录可以完美解决传递知识的整个过程，记下今日所学其实就是总结和沉淀，写下明日计划可以强化目标、暗示自己一定可以完成。写下过去，才有未来。 方法：尝到甜头万事开头难，开头一定要对自己好一点。学习方法第一步：先让那个自己尝到甜头，也就是正反馈。一开始不要管原理，直达目的完成“hello world！”，你就能收到正反馈，建立自信。接下来就是如何保持自信，保持兴奋。不断设立小目标，1-2天可完成的最好，保证自己的续航能力，直到完成目标。（记得，每天都要记录，这样才能把知识传递下去。） 写博客这件事与记录相比又不太一样，写博客就好像在向全世界的人传递自己的知识和价值观，这跟我的博客访问量没有直接关系，而是我知道的我博客链接了互联网，有被传播和产生价值的“可能”，这就能驱动我去写作，恰恰就是这种“可能”驱动着每一个人去写作，绘画，演讲，歌唱。世界似乎也是这样运转的，“希望”和“可能”驱动着每一个人去创造。 提效把精力多放到提效的事情上，会让我多出很多时间来学习与生活。提效是件有难度的事情，可一旦做成了我应该会感谢自己。今年还剩下50%，好好利用这50%把这些年所学整理成文章记录下来。方便未来的自己使用。 处女作博文，未来的自己应该会感谢我吧。说干就干，能自动化的东西绝对不动手使用Travis CI持续部署Hexo博客]]></content>
+      <categories>
+        <category>故事</category>
+        <category>经历</category>
+      </categories>
+      <tags>
+        <tag>开端</tag>
+        <tag>学习</tag>
+        <tag>传递知识</tag>
+      </tags>
+  </entry>
+</search>

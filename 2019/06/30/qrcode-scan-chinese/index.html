@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta name="google-site-verification" content="wa1d_VBROrC8CUBWfePHIQjtmuJKI6xEugzR_oYT-bY" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/favicon.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="二维码," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="zongzijie'Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="问题背景二维码（内容是，英文字母加数字）扫描时在PC端是需要一个扫描枪来用红外识别的，此扫描枪其实实在模拟键盘输入，相当于就是个键盘。场景要求：同一个输入框，用户既可以手动录入中文，也能接着就扫描。问题来了：  输入中文时必然是中文输入法，所以网友说的禁止输入中文的方法行不通。 如果输入了中文，再扫码，必然会出现模拟键盘输入，将二维码中的英文字母和数字合并成中文输出到表单中 扫码枪都没有驱动也没有">
+<meta name="keywords" content="二维码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二维码扫描枪中文乱码问题终极解决方案">
+<meta property="og:url" content="http://zongzijie.github.io/2019/06/30/qrcode-scan-chinese/index.html">
+<meta property="og:site_name" content="zongzijie&#39;Blog">
+<meta property="og:description" content="问题背景二维码（内容是，英文字母加数字）扫描时在PC端是需要一个扫描枪来用红外识别的，此扫描枪其实实在模拟键盘输入，相当于就是个键盘。场景要求：同一个输入框，用户既可以手动录入中文，也能接着就扫描。问题来了：  输入中文时必然是中文输入法，所以网友说的禁止输入中文的方法行不通。 如果输入了中文，再扫码，必然会出现模拟键盘输入，将二维码中的英文字母和数字合并成中文输出到表单中 扫码枪都没有驱动也没有">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-21T13:20:32.924Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="二维码扫描枪中文乱码问题终极解决方案">
+<meta name="twitter:description" content="问题背景二维码（内容是，英文字母加数字）扫描时在PC端是需要一个扫描枪来用红外识别的，此扫描枪其实实在模拟键盘输入，相当于就是个键盘。场景要求：同一个输入框，用户既可以手动录入中文，也能接着就扫描。问题来了：  输入中文时必然是中文输入法，所以网友说的禁止输入中文的方法行不通。 如果输入了中文，再扫码，必然会出现模拟键盘输入，将二维码中的英文字母和数字合并成中文输出到表单中 扫码枪都没有驱动也没有">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://zongzijie.github.io/2019/06/30/qrcode-scan-chinese/"/>
+
+
+
+
+
+  <title>二维码扫描枪中文乱码问题终极解决方案 | zongzijie'Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">zongzijie'Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://zongzijie.github.io/2019/06/30/qrcode-scan-chinese/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="wojiejie">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/me.avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zongzijie'Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">二维码扫描枪中文乱码问题终极解决方案</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-30T21:05:06+00:00">
+                2019-06-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv">本文总阅读量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>二维码（内容是，英文字母加数字）扫描时在PC端是需要一个扫描枪来用红外识别的，此扫描枪其实实在模拟键盘输入，相当于就是个键盘。<br>场景要求：同一个输入框，用户既可以手动录入中文，也能接着就扫描。<br>问题来了：</p>
+<ol>
+<li>输入中文时必然是中文输入法，所以网友说的禁止输入中文的方法行不通。</li>
+<li>如果输入了中文，再扫码，必然会出现模拟键盘输入，将二维码中的英文字母和数字合并成中文输出到表单中</li>
+<li>扫码枪都没有驱动也没有独立的事件，无法通过事件去区分扫码还是键盘输入，故而无法去做响应。</li>
+<li>所以我们的核心目标就是需要模拟一个二维码扫描事件，这个事件能够在触发时告诉我二维码的真实内容，然后就可以拿着这个真实内容去干活了，而不用考虑输入法的干扰。（干活后还能回来将这写中文内容替换成二维码内容，提升用户视觉体验）</li>
+</ol>
+<p>预期效果：</p>
+<ol>
+<li>用户输入完中文，搜索无果后，马上想到扫码快速解决问题，这时不用清空输入框，也不用切换输入法，直接拿起扫描枪就扫二维码，滴，1秒出结果。</li>
+<li>扫描第一张二维码之后，继续扫第二张，第三张…..中途无需清空输入框</li>
+</ol>
+<p>解决思路：</p>
+<ol>
+<li>确定一个二维码的业务规则，如：是否包含数字，是否包含字母，二维码的固定长度，需要精确到能够识别出来这是否是一个二维码，这个很关键，决定了这个方案的可用性，总不能所有二维码都可以扫。</li>
+<li>扫码就是键盘输入，那么一定会触发键盘抬起事件keyup,利用这个事件去记录实际按下的英文按键字符串，形成一个真实的二维码内容</li>
+<li>检测键盘按下和抬起的速度，扫码枪的按下和抬起的间隔都在70ms以下，所以可以根据这个时间来粗暴的判断单次按键是扫描枪扫描的还是手动输入的。</li>
+<li>当然手动输入也可以低于70ms，但是稳定且持续到二维码全都输入完成，也是很小的机率，即便出现了，还有最后一道防线，二维码规则不对的也不会算作扫码。</li>
+<li>根据以上的所有条件即可精确判断出(99%)是否是扫描的二维码，那么也就可以模拟一个二维码扫描的事件出来了。</li>
+<li>有了二维码扫描事件，就可以拿着这个响应事件中的二维码内容去干活了。</li>
+</ol>
+<p>jquery插件已写好，需要的自取<br>使用示例：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//监听扫描抢输入</span></span><br><span class="line"><span class="keyword">var</span> me=<span class="keyword">this</span>;</span><br><span class="line">me.$searchInput.startListen(&#123;</span><br><span class="line">    show : <span class="function"><span class="keyword">function</span>(<span class="params">code</span>)</span>&#123;</span><br><span class="line">        me.btnSearchEvt(code).then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">            <span class="comment">//中文输入法完成后输入到文本框这个中间会有延迟，这里需要延后替换，不然会被输入法覆盖。</span></span><br><span class="line">            setTimeout(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                <span class="comment">//为了保证查询的结果是输入框上的二维码对应的内容，保证最终一致性</span></span><br><span class="line">                me.$searchInput.val(code);</span><br><span class="line">            &#125;, <span class="number">500</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">this</span>.clearRealKeys();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>插件代码：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> barcode = &#123;</span><br><span class="line">        functionalKeyArray : [<span class="number">9</span>, <span class="number">20</span>, <span class="number">13</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">91</span>, <span class="number">92</span>, <span class="number">93</span>, <span class="number">45</span>, <span class="number">36</span>, <span class="number">33</span>,<span class="number">32</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">37</span>, <span class="number">39</span>, <span class="number">112</span>, <span class="number">113</span>, <span class="number">114</span>, <span class="number">115</span>, <span class="number">116</span>, <span class="number">117</span>, <span class="number">118</span>, <span class="number">119</span>, <span class="number">120</span>, <span class="number">121</span>, <span class="number">122</span>, <span class="number">123</span>, <span class="number">144</span>, <span class="number">19</span>, <span class="number">145</span>, <span class="number">40</span>, <span class="number">38</span>, <span class="number">27</span>], <span class="comment">//键盘上功能键键值数组</span></span><br><span class="line">        listenerObj: <span class="literal">null</span>,</span><br><span class="line">        letter: <span class="literal">false</span>,</span><br><span class="line">        number: <span class="literal">true</span>,</span><br><span class="line">        check: <span class="literal">true</span>,</span><br><span class="line">        realKeys:<span class="string">""</span>,</span><br><span class="line">        <span class="comment">/* 一次按键时间间隔 */</span></span><br><span class="line">        oneKeyTime: <span class="string">''</span>,</span><br><span class="line">        <span class="comment">/* 两次按键时间间隔 */</span></span><br><span class="line">        twoKeyTime: <span class="string">''</span>,</span><br><span class="line">        <span class="comment">/* 键按下的时间    */</span></span><br><span class="line">        keyDownTime: <span class="string">''</span>,</span><br><span class="line">        <span class="comment">/* 条形码长度      */</span></span><br><span class="line">        barcodeLen: <span class="number">8</span>,</span><br><span class="line">        <span class="comment">/* 一次按键按下到释放的时间间隔 */</span></span><br><span class="line">        spanTime: <span class="number">80</span>,</span><br><span class="line">        <span class="comment">/* 零的key值      */</span></span><br><span class="line">        zerokeyVal: <span class="number">48</span>,</span><br><span class="line">        <span class="comment">/* 数字9的key值   */</span></span><br><span class="line">        ninekeyVal: <span class="number">57</span>,</span><br><span class="line">        <span class="comment">/* a的key值      */</span></span><br><span class="line">        akeyVal: <span class="number">65</span>,</span><br><span class="line">        <span class="comment">/* z的key值      */</span></span><br><span class="line">        zkeyVal: <span class="number">90</span>,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 展示扫描结果</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125; [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        show: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;&#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 校验手动输入</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125; [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        checkHandInput: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.oneKeyTime &gt; <span class="keyword">this</span>.spanTime) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 键盘开始按下</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125; [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        on_key_down: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="comment">// var that = this;</span></span><br><span class="line">            <span class="comment">// this.listenerObj.keydown(function(e) &#123;</span></span><br><span class="line">            <span class="comment">//    </span></span><br><span class="line">            <span class="comment">// &#125;);</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 键盘抬起</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125; [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        on_key_up: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="keyword">var</span> that = <span class="keyword">this</span>;</span><br><span class="line">            <span class="keyword">this</span>.listenerObj.keyup(<span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">                <span class="comment">//不管如何,记录按键,最终以记录的按键为准.</span></span><br><span class="line">                that.recordKeys(e);</span><br><span class="line">                <span class="comment">//过滤掉二维码里面的回车,统一由扫描插件回调后代码统一处理后续业务.避免重复触发(回车后触发业务很常见,所以扫描枪自带回车,二维码自带的回车都要屏蔽掉)</span></span><br><span class="line">                <span class="keyword">if</span>(e.keyCode===<span class="number">13</span>)&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">var</span> d = <span class="keyword">new</span> <span class="built_in">Date</span>();</span><br><span class="line">                <span class="keyword">var</span> keyUpTime = d.getTime();</span><br><span class="line"></span><br><span class="line">                that.oneKeyTime = <span class="built_in">parseInt</span>(keyUpTime) - <span class="built_in">parseInt</span>(that.keyDownTime);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">var</span> isHand = that.checkHandInput();</span><br><span class="line">                </span><br><span class="line">                <span class="comment">//是手动输入则不做默认处理，但是要清空按键记录，避免用户先手动按键，再扫描二维码的场景下，将两个按键记录拼接后导致查询不出来结果。</span></span><br><span class="line">                <span class="keyword">if</span> (that.check &amp;&amp; isHand &amp;&amp; that.in_range(e.which)) &#123;</span><br><span class="line">                    that.clearRealKeys();</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (that.check &amp;&amp; !isHand &amp;&amp; that.check_barcode()) &#123;</span><br><span class="line">                    <span class="comment">//说明是非手动输入，则直接将记录的按键填充到输入框中，无视客户端的输入法。</span></span><br><span class="line">                    that.createListEl();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 键盘已经按下</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125; [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        on_key_press: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="comment">//var that = this;</span></span><br><span class="line">            <span class="comment">// this.listenerObj.keypress(function(e) &#123;</span></span><br><span class="line">            <span class="comment">//     if (e.which == 13 &amp;&amp; that.check_barcode()) &#123;</span></span><br><span class="line">            <span class="comment">//         that.createListEl();</span></span><br><span class="line">            <span class="comment">//     &#125;</span></span><br><span class="line">            <span class="comment">// &#125;);</span></span><br><span class="line">        &#125;,</span><br><span class="line">        </span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 记录按键</span></span><br><span class="line"><span class="comment">         * @param e</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        recordKeys:<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">            <span class="keyword">var</span> that=<span class="keyword">this</span>;</span><br><span class="line">            <span class="keyword">var</span> d = <span class="keyword">new</span> <span class="built_in">Date</span>();</span><br><span class="line">            <span class="keyword">var</span> curTime = <span class="built_in">parseInt</span>(d.getTime());</span><br><span class="line">            <span class="keyword">if</span> (that.keyDownTime !== <span class="string">''</span> &amp;&amp; _.isNaN(that.keyDownTime)==<span class="literal">false</span>) &#123;</span><br><span class="line">                that.twoKeyTime = curTime - that.keyDownTime;</span><br><span class="line">            &#125;</span><br><span class="line">            that.keyDownTime = curTime;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//过滤掉功能按键，包括空格和换行</span></span><br><span class="line">            <span class="keyword">if</span>(that.functionalKeyArray.some(<span class="function"><span class="keyword">function</span>(<span class="params">k</span>)</span>&#123;<span class="keyword">return</span> k===e.keyCode&#125;))&#123;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//如果是中文输入法，则需要记录真实按键</span></span><br><span class="line">            <span class="keyword">if</span>(e.keyCode===<span class="number">229</span>)&#123;</span><br><span class="line">                <span class="comment">//e.originalEvent.code 有可能未定义，此时尝试获取key</span></span><br><span class="line">                <span class="keyword">if</span>(!e.originalEvent)<span class="keyword">return</span>;</span><br><span class="line">                <span class="keyword">var</span> code=e.originalEvent.code||e.originalEvent.key||<span class="string">""</span>;</span><br><span class="line">                <span class="keyword">var</span> key=code.replace(<span class="string">"Key"</span>,<span class="string">""</span>).replace(<span class="string">"Digit"</span>,<span class="string">""</span>).replace(<span class="string">"NumPad"</span>,<span class="string">""</span>);</span><br><span class="line">                <span class="keyword">var</span> realkey=that.keyMap[key];</span><br><span class="line">                key=realkey===<span class="literal">undefined</span>?key:realkey;</span><br><span class="line">                that.realKeys+=key;</span><br><span class="line">                <span class="built_in">console</span>.log(that.realKeys);</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//按下退格键，清空按键记录</span></span><br><span class="line">            <span class="keyword">if</span>(e.keyCode===<span class="number">8</span>)&#123;</span><br><span class="line">                that.clearRealKeys();</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            that.realKeys= that.realKeys+e.key;</span><br><span class="line">            <span class="built_in">console</span>.log(that.realKeys)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 校验条码结果是否满足条件</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125; [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        check_barcode: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="keyword">var</span> code = <span class="keyword">this</span>.realKeys;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (code.length !== <span class="keyword">this</span>.barcodeLen) &#123;</span><br><span class="line">                <span class="comment">//$(this.listenerObj).val("").focus();</span></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                <span class="comment">// layer.msg('条形码不合法',&#123;time : 800&#125;);</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 判断按下的键是否在字母加数字这个范围</span></span><br><span class="line"><span class="comment">         * @param  &#123;[type]&#125; key [description]</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125;     [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        in_range: <span class="function"><span class="keyword">function</span>(<span class="params">key</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">var</span> isLegal = <span class="literal">false</span>;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.number) &#123;</span><br><span class="line">                isLegal = <span class="keyword">this</span>.is_number(key);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.letter) &#123;</span><br><span class="line">                isLegal = <span class="keyword">this</span>.is_letter(key);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.number &amp;&amp; <span class="keyword">this</span>.letter) &#123;</span><br><span class="line">                isLegal = <span class="keyword">this</span>.is_number || <span class="keyword">this</span>.is_letter ? <span class="literal">true</span> : <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> isLegal;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 按钮是否是数字</span></span><br><span class="line"><span class="comment">         * @param  &#123;[type]&#125;  key [description]</span></span><br><span class="line"><span class="comment">         * @return &#123;Boolean&#125;     [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        is_number: <span class="function"><span class="keyword">function</span>(<span class="params">key</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (key &gt; <span class="keyword">this</span>.ninekeyVal || key &lt; <span class="keyword">this</span>.zerokeyVal) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 按钮是否是字母</span></span><br><span class="line"><span class="comment">         * @param  &#123;[type]&#125;  key [description]</span></span><br><span class="line"><span class="comment">         * @return &#123;Boolean&#125;     [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        is_letter: <span class="function"><span class="keyword">function</span>(<span class="params">key</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (key &gt; <span class="keyword">this</span>.zkeyVal || key &lt; <span class="keyword">this</span>.akeyVal) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 校验是否联网</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125; [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        check_network: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="comment">//return navigator.onLine ? true : false;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 创建扫描结果</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125; [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        createListEl: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="keyword">this</span>.show == <span class="string">'function'</span>) &#123;</span><br><span class="line">                <span class="keyword">this</span>.show(<span class="keyword">this</span>.realKeys);</span><br><span class="line">                <span class="comment">// layer.msg('扫描成功',&#123;time:1000&#125;);</span></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//layer.msg('no callback function');</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//this.listenerObj.val("").focus();</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 清空按键记录</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125; [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        clearRealKeys: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.realKeys=<span class="string">""</span>;</span><br><span class="line">            <span class="comment">//console.log("clearRealKeys.")</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 保持激活输入框</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125; [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        keepFocusInput: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.listenerObj.blur(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">                <span class="keyword">var</span> that = $(<span class="keyword">this</span>);</span><br><span class="line">                setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">                    that.focus().select();</span><br><span class="line">                &#125;, <span class="number">100</span>);</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 开始监听</span></span><br><span class="line"><span class="comment">         * @param  &#123;[type]&#125; listenerObj [description]</span></span><br><span class="line"><span class="comment">         * @param  &#123;[type]&#125; settings    [description]</span></span><br><span class="line"><span class="comment">         * @return &#123;[type]&#125;             [description]</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        startListen: <span class="function"><span class="keyword">function</span>(<span class="params">listenerObj, settings</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> member <span class="keyword">in</span> settings) &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="keyword">typeof</span> barcode[member] !== <span class="string">'undefined'</span>) &#123;</span><br><span class="line">                    barcode[member] = settings[member];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            barcode.listenerObj = listenerObj;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">this</span>.on_key_down();</span><br><span class="line">            <span class="keyword">this</span>.on_key_up();</span><br><span class="line">            <span class="keyword">this</span>.on_key_press();</span><br><span class="line">            <span class="comment">//this.keepFocusInput();</span></span><br><span class="line">            <span class="keyword">this</span>.listenerObj.focus().select();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line">    $.fn.startListen = <span class="function"><span class="keyword">function</span>(<span class="params">options</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> settings = $.extend(&#123;</span><br><span class="line">            barcodeLen :<span class="number">76</span>,</span><br><span class="line">            letter : <span class="literal">true</span>,<span class="comment">//允许有字母</span></span><br><span class="line">            number : <span class="literal">true</span>,<span class="comment">//允许有数字</span></span><br><span class="line">            check  : <span class="literal">true</span></span><br><span class="line">        &#125;, options);</span><br><span class="line">        <span class="comment">//设置微软自带中文输入法下的key为标准key</span></span><br><span class="line">        barcode.keyMap=$.extend(&#123;</span><br><span class="line">            <span class="string">"Comma"</span>:<span class="string">","</span>,<span class="comment">//微软输入法逗号关键字替换</span></span><br><span class="line">            <span class="string">"Minus"</span>:<span class="string">"-"</span>,<span class="comment">//微软输入法关键字替换</span></span><br><span class="line">            <span class="string">"Enter"</span>:<span class="string">""</span>,<span class="comment">//微软输入法关键字忽略</span></span><br><span class="line">            <span class="string">"ShiftLeft"</span>:<span class="string">""</span>,<span class="comment">//微软输入法关键字忽略</span></span><br><span class="line">            <span class="string">"ArrowDown"</span>:<span class="string">""</span>,<span class="comment">//windows搜狗中文输入法忽略</span></span><br><span class="line">            <span class="string">"Space"</span>:<span class="string">""</span><span class="comment">//windows搜狗中文输入法忽略</span></span><br><span class="line">        &#125;, options.keyMap);</span><br><span class="line">        barcode.startListen(<span class="keyword">this</span>, settings);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/pay/wechatpay.jpeg" alt="wojiejie 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/pay/alipay.jpeg" alt="wojiejie 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/二维码/" rel="tag"># 二维码</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/19/performance-optimization/" rel="next" title="性能优化-嵌套循环">
+                <i class="fa fa-chevron-left"></i> 性能优化-嵌套循环
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/03/sql-performance-optimization/" rel="prev" title="SqlServer性能优化">
+                SqlServer性能优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- Go to www.addthis.com/dashboard to customize your tools -->
+<div class="addthis_inline_share_toolbox">
+  <script type = "text/javascript" src = "//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5b307b4bae06ffd8" async = "async" ></script>
+</div>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNzU2OS8xNDEwMQ=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/me.avatar.png"
+                alt="wojiejie" />
+            
+              <p class="site-author-name" itemprop="name">wojiejie</p>
+              <p class="site-description motion-element" itemprop="description">运行在C上的世界</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zongzijie" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/wojiejie" target="_blank" title="ZhiHu">
+                      
+                        <i class="fa fa-fw fa-globe"></i>ZhiHu</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题背景"><span class="nav-number">1.</span> <span class="nav-text">问题背景</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">wojiejie</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a></div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      本站访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script id="ribbon" type="text/javascript" size="300" alpha="0.6"  zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

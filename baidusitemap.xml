@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+
+    
+    
+  <url>
+    <loc>http://zongzijie.github.io/2019/07/12/ajax-download-flie/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>XMLHttpRequest异步下载文件</title>
+        <pubTime>2019-07-12T00:17:20.000Z</pubTime>
+        
+        <tag>异步</tag>
+         
+        <tag>下载</tag>
+         
+        <tag>XMLHttpRequest</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2019/07/14/browser-screen/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>优雅的浏览器滚动截屏</title>
+        <pubTime>2019-07-14T17:17:50.000Z</pubTime>
+        
+        <tag>滚动截屏</tag>
+         
+        <tag>screenshot</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2019/01/23/code-isolation/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>我们应该如何保证代码质量</title>
+        <pubTime>2019-01-23T12:49:27.000Z</pubTime>
+        
+        <tag>GitLab</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2018/07/01/code-review/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>Gitflow日常工作中如何高效的实践Codereview</title>
+        <pubTime>2018-07-01T19:15:49.000Z</pubTime>
+        
+        <tag>Gitflow</tag>
+         
+        <tag>Codereview</tag>
+         
+         
+           
+             
+              <breadCrumb title="Git" url="http://zongzijie.github.io/categories/Git/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2019/08/26/cpu99/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>记一次生产环境CPU100%排查实践</title>
+        <pubTime>2019-08-26T21:23:48.000Z</pubTime>
+        
+        <tag>windbg</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2018/06/30/download-singlefile-from-github/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>如何从Github上下载单个文件（适用于Mac与linux用户）</title>
+        <pubTime>2018-06-30T21:11:28.000Z</pubTime>
+        
+        <tag>MacOs</tag>
+         
+        <tag>Github</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2018/06/26/luanma/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>git status 中文路径乱码问题解决方案</title>
+        <pubTime>2018-06-26T18:47:16.000Z</pubTime>
+        
+        <tag>git</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2018/06/30/manage-branch/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>Git 如何管理本地分支-删除多余分支</title>
+        <pubTime>2018-06-30T21:59:43.000Z</pubTime>
+        
+        <tag>Git</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2019/07/07/msg-editor/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>短信消息编辑器</title>
+        <pubTime>2019-07-07T23:38:16.000Z</pubTime>
+        
+        <tag>js</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2018/11/23/nullable/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>深入理解C#可空类型Nullable<T></title>
+        <pubTime>2018-11-23T13:35:55.000Z</pubTime>
+        
+        <tag>Nulable&lt;T&gt;</tag>
+         
+        <tag>可空类型</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2019/03/19/performance-optimization/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>性能优化-嵌套循环</title>
+        <pubTime>2019-03-19T13:23:32.000Z</pubTime>
+        
+        <tag>性能优化</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2018/09/05/promise/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>Promise 本质上是一个有限状态机</title>
+        <pubTime>2018-09-05T18:42:41.000Z</pubTime>
+        
+        <tag>promise</tag>
+         
+        <tag>本质</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2018/06/30/push-branch-to-remote/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>Git 如何删除远程分支</title>
+        <pubTime>2018-06-30T21:46:49.000Z</pubTime>
+        
+        <tag>Git</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2019/06/30/qrcode-scan-chinese/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>二维码扫描枪中文乱码问题终极解决方案</title>
+        <pubTime>2019-06-30T21:05:06.000Z</pubTime>
+        
+        <tag>二维码</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2019/03/09/shangzenglilun/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>熵增感悟</title>
+        <pubTime>2019-03-09T13:01:54.000Z</pubTime>
+        
+        <tag>熵</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2018/06/30/solution/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>Git错误解决方案</title>
+        <pubTime>2018-06-30T00:03:58.000Z</pubTime>
+        
+        <tag>Git</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2019/07/03/sql-performance-optimization/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>SqlServer性能优化</title>
+        <pubTime>2019-07-03T15:45:54.000Z</pubTime>
+        
+        <tag>性能优化</tag>
+         
+        <tag>mssql</tag>
+         
+        <tag>sql</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2018/06/23/start/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>恭喜，我终于开始写博客了</title>
+        <pubTime>2018-06-23T23:30:33.000Z</pubTime>
+        
+        <tag>开端</tag>
+         
+        <tag>学习</tag>
+         
+        <tag>传递知识</tag>
+         
+         
+           
+             
+              <breadCrumb title="故事" url="http://zongzijie.github.io/categories/%E6%95%85%E4%BA%8B/"/>
+          
+             
+              <breadCrumb title="经历" url="http://zongzijie.github.io/categories/%E6%95%85%E4%BA%8B/%E7%BB%8F%E5%8E%86/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2018/06/24/static-check/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>基于Eslint兼容TFS与Git两种仓库的静态代码扫描平台</title>
+        <pubTime>2018-06-24T14:40:18.000Z</pubTime>
+        
+        <tag>Git</tag>
+         
+        <tag>javascript</tag>
+         
+        <tag>mongodb</tag>
+         
+        <tag>git-tf</tag>
+         
+        <tag>nodejs</tag>
+         
+        <tag>eslint</tag>
+         
+        <tag>express</tag>
+         
+        <tag>TFS</tag>
+         
+         
+           
+             
+              <breadCrumb title="轮子" url="http://zongzijie.github.io/categories/%E8%BD%AE%E5%AD%90/"/>
+          
+             
+              <breadCrumb title="代码" url="http://zongzijie.github.io/categories/%E8%BD%AE%E5%AD%90/%E4%BB%A3%E7%A0%81/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2018/07/27/telnet-cli/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>macOS High Sierra 10.13.* 系统中找回telnet命令</title>
+        <pubTime>2018-07-27T21:45:36.000Z</pubTime>
+        
+        <tag>brew</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://zongzijie.github.io/2019/07/12/web-api-mvc/</loc>
+    <lastmod>2019-09-21T13:20:32.924Z</lastmod>
+    <data>
+        <display>
+        <title>WebApi,Mvc原理解析</title>
+        <pubTime>2019-07-12T19:13:34.000Z</pubTime>
+        
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+    
+    
+</urlset>
